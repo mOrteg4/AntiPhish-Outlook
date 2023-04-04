@@ -23,3 +23,26 @@ export async function run() {
   // Write message property value to the task pane
   document.getElementById("item-subject").innerHTML = "<b>Subject:</b> <br/>" + item.subject;
 }
+
+
+
+
+
+function handleButtonAction(event) {
+  // Get the item (email) being read
+  var item = Office.context.mailbox.item;
+
+  // Get the email subject
+  var subject = item.subject;
+
+  // Get the email body
+  item.body.getAsync("text", { asyncContext: null }, function (result) {
+    var body = result.value;
+    // Process the email content and interact with your Python script as needed
+
+    // ... Your logic here ...
+
+    // Don't forget to call event.completed() when you're done processing
+    event.completed();
+  });
+}
