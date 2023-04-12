@@ -41,6 +41,8 @@ preprocessed_email_content = preprocess_email_content(email_content)
 # and returns a numpy array with the same format as the training features
 
 
+#change this later
+#Todo
 
 email_features = transform_email_to_features(preprocessed_email_content)
 
