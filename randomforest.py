@@ -83,7 +83,7 @@ rf = RandomForestRegressor(n_estimators=1000, random_state=42)
 rf.fit(train_features, train_labels)
 
 # Get the currently open email in Outlook
-email_content = "roblox.com is the best"#get_current_email()
+email_content = "what"#get_current_email()
 
 # Preprocess the email content
 preprocessed_email_content = preprocess_email_content(email_content)
