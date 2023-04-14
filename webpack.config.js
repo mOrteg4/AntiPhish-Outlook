@@ -45,14 +45,6 @@ module.exports = async (env, options) => {
           use: "html-loader",
         },
         {
-          test: /.py$/,
-          use: [
-            {
-              loader: 'python-js',
-            },
-          ],
-        },
-        {
           test: /\.(png|jpg|jpeg|gif|ico)$/,
           type: "asset/resource",
           generator: {

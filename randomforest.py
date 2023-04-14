@@ -6,7 +6,6 @@ from sklearn.tree import export_graphviz
 import pydot
 import re
 import win32com.client
-# import tkinter as tk
 
 def preprocess_email_content(email_content):
     preprocessed_content = email_content.lower()
@@ -83,26 +82,24 @@ train_features, test_features, train_labels, test_labels = train_test_split(feat
 rf = RandomForestRegressor(n_estimators=1000, random_state=42)
 rf.fit(train_features, train_labels)
 
-def classify_email():
-    # Get the currently open email in Outlook
-    email_content = "what"#get_current_email()
+# Get the currently open email in Outlook
+email_content = "what"#get_current_email()
 
-    # Preprocess the email content
-    preprocessed_email_content = preprocess_email_content(email_content)
+# Preprocess the email content
+preprocessed_email_content = preprocess_email_content(email_content)
 
-    # Transform the preprocessed email content into a format compatible with the random forest model
-    email_features = transform_email_to_features(preprocessed_email_content)
+# Transform the preprocessed email content into a format compatible with the random forest model
+email_features = transform_email_to_features(preprocessed_email_content)
 
-    # Predict if the email is a phishing attempt using the random forest model
-    phishing_prediction = rf.predict(email_features.reshape(1, -1))
-    return phishing_prediction
+# Predict if the email is a phishing attempt using the random forest model
+phishing_prediction = rf.predict(email_features.reshape(1, -1))
 
-    # Set a threshold for the prediction to classify it as phishing or not
-    # phishing_threshold = 0.5
-    # if phishing_prediction > phishing_threshold:
-    #     print("This email may be a phishing attempt.")
-    # else:
-    #     print("This email seems legitimate.")
+# Set a threshold for the prediction to classify it as phishing or not
+phishing_threshold = 0.5
+if phishing_prediction > phishing_threshold:
+    print("This email may be a phishing attempt.")
+else:
+    print("This email seems legitimate.")
 
 # Visualize the RandomForest
 tree = rf.estimators_[5]
@@ -119,21 +116,3 @@ export_graphviz(tree_small, out_file='small_tree.dot', feature_names=feature_lis
 graph.write_png('small_tree.png')
 
 # Actual vs Prediction
-
-# When "Detect Phishing" button is clicked
-def on_button_click():
-    # window = tk.Tk() # create new window
-    # label = tk.Label(window, text="")
-
-    # Set a threshold for the prediction to classify it as phishing or not
-    phishing_threshold = 0.5
-    phishing_prediction = classify_email()
-    if phishing_prediction > phishing_threshold:
-        # label.config(text=
-        print("This email may be a phishing attempt.")
-    else:
-        # label.config(text=
-        print("This email seems legitimate.")
-
-    # label.pack()
-    # window.mainloop() #start event loop
