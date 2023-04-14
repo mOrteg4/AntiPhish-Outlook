@@ -9,7 +9,6 @@
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
-  <Permissions>ReadWriteItem</Permissions>
   <AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
   </AppDomains>
@@ -61,7 +60,6 @@
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
                     <SourceLocation resid="Taskpane.Url"/>
-                    <SupportsPinning>true</SupportsPinning>
                   </Action>
                 </Control>
                 <Control xsi:type="Button" id="ActionButton">
@@ -76,7 +74,7 @@
                     <bt:Image size="80" resid="Icon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>handleButtonAction</FunctionName>
                   </Action>
                 </Control>
               </Group>
@@ -106,33 +104,4 @@
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
-
-
-  <ExtensionPoint xsi:type="MessageReadCommandSurface">
-  <OfficeTab id="TabDefault">
-    <Group id="msgReadGroup">
-      <Label resid="groupLabel" />
-      <Icon>
-        <bt:Image size="16" resid="icon16" />
-        <bt:Image size="32" resid="icon32" />
-        <bt:Image size="80" resid="icon80" />
-      </Icon>
-      <Control xsi:type="Button" id="msgReadButton">
-        <Label resid="buttonLabel" />
-        <Supertip>
-          <Title resid="superTipTitle" />
-          <Description resid="superTipDescription" />
-        </Supertip>
-        <Icon>
-          <bt:Image size="16" resid="icon16" />
-          <bt:Image size="32" resid="icon32" />
-          <bt:Image size="80" resid="icon80" />
-        </Icon>
-        <Action xsi:type="ExecuteFunction">
-          <FunctionName>handleButtonAction</FunctionName>
-        </Action>
-      </Control>
-    </Group>
-  </OfficeTab>
-</ExtensionPoint>
 </OfficeApp>

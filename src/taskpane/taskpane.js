@@ -4,6 +4,7 @@
  */
 
 /* global document, Office */
+import { on_button_click } from './randomforest.py';
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Outlook) {
@@ -41,6 +42,7 @@ function handleButtonAction(event) {
     // Process the email content and interact with your Python script as needed
 
     // ... Your logic here ...
+    on_button_click();
 
     // Don't forget to call event.completed() when you're done processing
     event.completed();
