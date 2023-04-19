@@ -93,7 +93,7 @@ print("Processed email: " + preprocessed_email_content)
 # Transform the preprocessed email content into a format compatible with the random forest model
 print("Comparing features...")
 email_features = transform_email_to_features(preprocessed_email_content)
-print("Email features: " + email_features)
+#print("Email features: " + email_features)
 
 print("Getting Predictions...")
 # Predict if the email is a phishing attempt using the random forest model
