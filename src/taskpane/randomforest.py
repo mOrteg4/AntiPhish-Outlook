@@ -84,6 +84,7 @@ rf.fit(train_features, train_labels)
 
 # Get the currently open email in Outlook
 email_content = "What the hell is going on"#get_current_email()
+print("Current email content: " + email_content)
 
 # Preprocess the email content
 print("Switching email to lowercase...")
