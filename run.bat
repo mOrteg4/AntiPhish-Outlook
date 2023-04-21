@@ -1,2 +1,2 @@
-cd C:\Users\super\Documents\GitHub\AntiPhish-Outlook
+cd C:\Users\lilyp\Downloads\Code\AntiPhish-Outlook
 npm start
