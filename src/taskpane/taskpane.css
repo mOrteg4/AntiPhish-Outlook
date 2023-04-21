@@ -70,11 +70,7 @@
   color: #0078d7;
 }
 
-.ms-Button.ms-Button--hero:hover .ms-Button-label,
-.ms-Button.ms-Button--hero:focus .ms-Button-label{
-  color: #005a9e;
-  cursor: pointer;
-}
+
 
 b {
     font-weight: bold;
@@ -91,4 +87,32 @@ body.dark-mode
     font-size: 14px;
     font-weight: bold;
     color: #444;
+}
+
+.ms-welcome__action.ms-Button--hero {
+    margin-top: 30px;
+    padding: 12px 24px;
+    background-color: #0078d7;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+
+.ms-Button.ms-Button--hero .ms-Button-label {
+    color: #ffffff;
+}
+
+
+
+.ms-Button.ms-Button--hero:hover,
+.ms-Button.ms-Button--hero:focus {
+    background-color: #005a9e;
+    cursor: pointer;
+}
+
+
+
+.ms-Button.ms-Button--hero:active {
+    border-color: #005a9e;
+    transform: scale(0.95);
 }
