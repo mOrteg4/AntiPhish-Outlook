@@ -26,13 +26,27 @@ def transform_email_to_features(preprocessed_email_content):
     # Initialize a list to store the extracted features
     email_features = []
 
+    # Extract ID
+
     # Extract NumDots from preprocessed_email_content
     num_dots = preprocessed_email_content.count(".")
     email_features.append(num_dots)
 
+    # Extract SubdomainLevel
+
+    # Extract PathLevel
+
+    # Extract UrlLength
+
     # Extract NumDash from preprocessed_email_content
     num_dash = preprocessed_email_content.count("-")
     email_features.append(num_dash)
+
+    # Extract NumDashInHostname
+
+    # Extract AtSymbol
+
+    # Extract TildeSymbol
 
     # Extract NumUnderscore from preprocessed_email_content
     num_underscore = preprocessed_email_content.count("_")
@@ -41,6 +55,8 @@ def transform_email_to_features(preprocessed_email_content):
     # Extract NumPercent from preprocessed_email_content
     num_percent = preprocessed_email_content.count("%")
     email_features.append(num_percent)
+
+    #Extract NumQueryComponents
 
     # Extract NumAmpersand from preprocessed_email_content
     num_ampersand = preprocessed_email_content.count("&")
@@ -54,9 +70,46 @@ def transform_email_to_features(preprocessed_email_content):
     num_numeric_chars = sum(c.isdigit() for c in preprocessed_email_content)
     email_features.append(num_numeric_chars)
 
+    # Extract NoHttps
+    # Extract RandomString
+    #Extract IpAddress
+    #Extract DomainInSubdomains
+    # Extract DomainInPaths
+    # Extract HttpsInHostname
+    # Extract HostnameLength
+    # Extract PathLength
+    # Extract QueryLength
+    # Extract DoubleSlashInPath
+    # Extract NumSensitiveWords
+    # Extract EmbeddedBrandName
+    # Extract PctExtHyperlinks
+    # Extract PctExtResourceUrls
+    # Extract ExtFavicon
+    # Extract InsecureForms
+    # Extract RelativeFormAction
+    # Extract ExtFormAction
+    # Extract AbnormalFormAction
+    # Extract PctNullSelfRedirectHyperlinks
+    # Extract FrequentDomainNameMismatch
+    # Extract FakeLinkInStatusBar
+    # Extract RightClickDisabled
+    # Extract PopUpWindow
+    # Extarct SubmitInfoToEmail
+    # Extract IframeOrFrame
+    # Extract MissingTitle
+    # Extract ImagesOnlyInForm
+    # Extract SubdomainLevelRT
+    # Extract UrlLengthRT
+    # Extract PctExtResourceUrlsRT
+    # Extract AbnormalExtFormActionR
+    # Extract ExtMetaScriptLinkRT
+    # Extract PctExtNullSelfRedirectHyperlinksRT
+    # Extract CLASS_LABEL
+
+    #Because we have 48 features, the rest of the blank column are inputted
+    #with num_hash so it's not empty. We have to fix this
     while len(email_features) != 49:
         email_features.append(num_hash)
-
     # ...
     # Extract the remaining features based on your specific dataset and requirements
     # email_features.append(feature_x)
@@ -77,6 +130,7 @@ features = features.drop('id', axis=1)
 feature_list = list(features.columns)
 features = np.array(features)
 
+#seperate the data into training and testing set
 train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25, random_state=42)
 # Train the RandomForest model
 rf = RandomForestRegressor(n_estimators=1000, random_state=42)
@@ -92,7 +146,7 @@ preprocessed_email_content = preprocess_email_content(email_content)
 email_features = transform_email_to_features(preprocessed_email_content)
 
 # Predict if the email is a phishing attempt using the random forest model
-phishing_prediction = rf.predict(email_features.reshape(1, -1))
+phishing_prediction = rf.predict(email_features)
 
 # Set a threshold for the prediction to classify it as phishing or not
 phishing_threshold = 0.5
@@ -101,18 +155,17 @@ if phishing_prediction > phishing_threshold:
 else:
     print("This email seems legitimate.")
 
-# Visualize the RandomForest
-tree = rf.estimators_[5]
-export_graphviz(tree, out_file='tree.dot', feature_names=feature_list, rounded=True, precision=1)
-(graph,) = pydot.graph_from_dot_file('tree.dot')
-graph.write_png('tree.png')
+# Everything under here is to help us fix the model, so I commented it out since we dont need it anymore
+# Visualize the RandomForest 
+#tree = rf.estimators_[5]
+#export_graphviz(tree, out_file='tree.dot', feature_names=feature_list, rounded=True, precision=1)
+#(graph,) = pydot.graph_from_dot_file('tree.dot')
+#graph.write_png('tree.png')
 
 # Limit depth of tree to 3 levels
-rf_small = RandomForestRegressor(n_estimators=10, max_depth=3)
-rf_small.fit(train_features, train_labels)
-tree_small = rf_small.estimators_[5]
-export_graphviz(tree_small, out_file='small_tree.dot', feature_names=feature_list, rounded=True, precision=1)
-(graph,) = pydot.graph_from_dot_file('small_tree.dot')
-graph.write_png('small_tree.png')
-
-# Actual vs Prediction
+#rf_small = RandomForestRegressor(n_estimators=10, max_depth=3)
+#rf_small.fit(train_features, train_labels)
+#tree_small = rf_small.estimators_[5]
+#export_graphviz(tree_small, out_file='small_tree.dot', feature_names=feature_list, rounded=True, precision=1)
+#(graph,) = pydot.graph_from_dot_file('small_tree.dot')
+#graph.write_png('small_tree.png')
