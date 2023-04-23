@@ -14,14 +14,21 @@ Office.onReady((info) => {
 });
 
 export async function run() {
-  /**
-   * Insert your Outlook code here
-   */
   // Get a reference to the current message
   const item = Office.context.mailbox.item;
 
   // Write message property value to the task pane
   document.getElementById("item-subject").innerHTML = "<b>Subject:</b> <br/>" + item.subject;
+
+  // Get the email body content
+  item.body.getAsync("text", { asyncContext: null }, function (result) {
+    var body = result.value;
+
+    // Combine subject and body
+    var emailContent = item.subject + " " + body;
+
+
+  });
 }
 
 

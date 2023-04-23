@@ -7,6 +7,9 @@ import pydot
 import re
 import win32com.client
 
+import sys
+
+
 def preprocess_email_content(email_content):
     preprocessed_content = email_content.lower()
     return preprocessed_content
