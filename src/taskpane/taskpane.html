@@ -35,11 +35,25 @@
         <h2 class="ms-font-xl">Please sideload your add-in to see app body.</h2>
     </section>
     <main id="app-body" class="ms-welcome__main" style="display: none;">
-        <h2 class="ms-font-xl"> Add-in in Progress </h2>
+        <p><label id="item-sender"></label></p>
         <p><label id="item-subject"></label></p>
+        
+        <!--
         <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <div class="ms-Button-label">Check Email for Phishing</div>
+        </div>-->
+
+         
+        <div class="padding">
+            <h3 id="item-subject"></h3>
+            
+            <button class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl" id="run">
+                <div class="ms-Button-label">Check Email for Phishing</div>
+            </button>
+            <p id="status-message" style="text-align:center;"></p>
         </div>
+        
+  
     </main>
 </body>
 

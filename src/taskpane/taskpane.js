@@ -13,21 +13,47 @@ Office.onReady((info) => {
   }
 });
 
+
+async function postData(url = "", data = {}) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return await response.json();
+}
+
+
 export async function run() {
   // Get a reference to the current message
   const item = Office.context.mailbox.item;
 
   // Write message property value to the task pane
   document.getElementById("item-subject").innerHTML = "<b>Subject:</b> <br/>" + item.subject;
+  document.getElementById("item-sender").innerHTML = "<b>Sender:</b> " + item.sender.emailAddress;
 
   // Get the email body content
-  item.body.getAsync("text", { asyncContext: null }, function (result) {
+  item.body.getAsync("text", { asyncContext: null }, async function (result) {
     var body = result.value;
 
     // Combine subject and body
     var emailContent = item.subject + " " + body;
 
+    // Update the status message to "Checking..."
+    document.getElementById("status-message").innerText = "Checking...";
 
+    // Call the Flask API to get the prediction
+    const response = await postData("http://localhost:3000/predict_phishing", { email_content: emailContent });
+    const prediction = response.prediction;
+
+    // Display the prediction or use it for further processing
+    console.log(prediction);
+
+    // Update the status message based on the prediction
+    const message = prediction === 1 ? "Phishing detected!" : "No phishing detected.";
+    document.getElementById("status-message").innerText = message;
   });
 }
 

@@ -149,7 +149,8 @@ preprocessed_email_content = preprocess_email_content(email_content)
 email_features = transform_email_to_features(preprocessed_email_content)
 
 # Predict if the email is a phishing attempt using the random forest model
-phishing_prediction = rf.predict(email_features)
+#possibly change this back to without the reshape
+phishing_prediction = rf.predict(email_features.reshape(1, -1))
 
 # Set a threshold for the prediction to classify it as phishing or not
 phishing_threshold = 0.5
