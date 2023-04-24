@@ -5,6 +5,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import export_graphviz
 import pydot
 import re
+import tldextract
+import urlparse
 import win32com.client
 
 import sys
@@ -29,94 +31,131 @@ def transform_email_to_features(preprocessed_email_content):
     # Initialize a list to store the extracted features
     email_features = []
 
-    # Extract ID
-
-    # Extract NumDots from preprocessed_email_content
-    num_dots = preprocessed_email_content.count(".")
-    email_features.append(num_dots)
-
-    # Extract SubdomainLevel
-
-    # Extract PathLevel
-
-    # Extract UrlLength
-
-    # Extract NumDash from preprocessed_email_content
-    num_dash = preprocessed_email_content.count("-")
-    email_features.append(num_dash)
-
-    # Extract NumDashInHostname
-
-    # Extract AtSymbol
-
-    # Extract TildeSymbol
-
-    # Extract NumUnderscore from preprocessed_email_content
-    num_underscore = preprocessed_email_content.count("_")
-    email_features.append(num_underscore)
-
-    # Extract NumPercent from preprocessed_email_content
-    num_percent = preprocessed_email_content.count("%")
-    email_features.append(num_percent)
-
-    #Extract NumQueryComponents
-
-    # Extract NumAmpersand from preprocessed_email_content
-    num_ampersand = preprocessed_email_content.count("&")
-    email_features.append(num_ampersand)
-
-    # Extract NumHash from preprocessed_email_content
-    num_hash = preprocessed_email_content.count("#")
-    email_features.append(num_hash)
-
-    # Extract NumNumericChars from preprocessed_email_content
-    num_numeric_chars = sum(c.isdigit() for c in preprocessed_email_content)
-    email_features.append(num_numeric_chars)
-
-    # Extract NoHttps
-    # Extract RandomString
-    #Extract IpAddress
-    #Extract DomainInSubdomains
-    # Extract DomainInPaths
-    # Extract HttpsInHostname
-    # Extract HostnameLength
-    # Extract PathLength
-    # Extract QueryLength
-    # Extract DoubleSlashInPath
-    # Extract NumSensitiveWords
-    # Extract EmbeddedBrandName
-    # Extract PctExtHyperlinks
-    # Extract PctExtResourceUrls
-    # Extract ExtFavicon
-    # Extract InsecureForms
-    # Extract RelativeFormAction
-    # Extract ExtFormAction
-    # Extract AbnormalFormAction
-    # Extract PctNullSelfRedirectHyperlinks
-    # Extract FrequentDomainNameMismatch
-    # Extract FakeLinkInStatusBar
-    # Extract RightClickDisabled
-    # Extract PopUpWindow
-    # Extarct SubmitInfoToEmail
-    # Extract IframeOrFrame
-    # Extract MissingTitle
-    # Extract ImagesOnlyInForm
-    # Extract SubdomainLevelRT
-    # Extract UrlLengthRT
-    # Extract PctExtResourceUrlsRT
-    # Extract AbnormalExtFormActionR
-    # Extract ExtMetaScriptLinkRT
-    # Extract PctExtNullSelfRedirectHyperlinksRT
-    # Extract CLASS_LABEL
-
-    #Because we have 48 features, the rest of the blank column are inputted
-    #with num_hash so it's not empty. We have to fix this
-    while len(email_features) != 49:
+    #check if there are links
+    link = re.compile('<a[^>]+href=\'(.*?)\'[^>]*>(.*)?</a>')
+    has_link = link.search(preprocess_email_content)
+    #if there are links, get data to check if phishing (im assuming theres one link for now)
+    if has_link is not None:
+        # Extract ID
+        email_features.append(re.findall('\d+',has_link))
+        # Extract NumDots from preprocessed_email_content
+        num_dots = has_link.count(".")
+        email_features.append(num_dots)
+        # Extract SubdomainLevel
+        ext = tldextract.extract(has_link) #https://pypi.org/project/tldextract/
+        sub = ext.subdomain
+        sub.split('.')
+        email_features.append(sub.size)
+        # Extract PathLevel
+        path = urlparse.urlparse(has_link)
+        path.split('/')
+        email_features.append(len(path))
+        # Extract UrlLength
+        email_features.append(len(has_link))
+        # Extract NumDash from preprocessed_email_content
+        num_dash = has_link.count("-")
+        email_features.append(num_dash)
+        # Extract NumDashInHostname
+        ext = tldextract.extract(has_link)
+        domain = ext.domain
+        num_dash_in_domain = domain.count("/")
+        email_features.append(num_dash_in_domain)
+        # Extract AtSymbol
+        at_symbol = has_link.count("@")
+        email_features.append(at_symbol)
+        # Extract TildeSymbol
+        tilde_symbol = has_link.count("~")
+        email_features.append(tilde_symbol)
+        # Extract NumUnderscore from preprocessed_email_content
+        num_underscore = has_link.count("_")
+        email_features.append(num_underscore)
+        # Extract NumPercent from preprocessed_email_content
+        num_percent = has_link.count("%")
+        email_features.append(num_percent)
+        #Extract NumQueryComponents
+        num_query_components = has_link.count("?")
+        email_features.append(num_query_components)
+        # Extract NumAmpersand from preprocessed_email_content
+        num_ampersand = has_link.count("&")
+        email_features.append(num_ampersand)
+        # Extract NumHash from preprocessed_email_content
+        num_hash = has_link.count("#")
         email_features.append(num_hash)
-    # ...
-    # Extract the remaining features based on your specific dataset and requirements
-    # email_features.append(feature_x)
+        # Extract NumNumericChars from preprocessed_email_content
+        num_numeric_chars = sum(c.isdigit() for c in has_link)
+        email_features.append(num_numeric_chars)
+        # Extract NoHttps
+        https = has_link.count("https")
+        email_features.append(https)
+        # Extract RandomString
 
+        # Extract IpAddress
+
+        # Extract DomainInSubdomains
+        ext = tldextract.extract(has_link)
+        sub = ext.sub
+        domain = ext.domain
+        domain_in_sub = sub.count(domain)
+        email_features.append(domain_in_sub)
+        # Extract DomainInPaths
+        path = urlparse.urlparse(has_link)
+        ext = tldextract.extract(has_link)
+        domain = ext.domain
+        domain_in_path = path.count(domain)
+        email_features.append(domain_in_path)
+        # Extract HttpsInHostname
+        ext = tldextract.extract(has_link)
+        domain = ext.domain
+        https_in_domain = domain.count("https")
+        email_features.append(https_in_domain)
+        # Extract HostnameLength
+        ext = tldextract.extract(has_link)
+        domain = ext.domain
+        email_features.append(len(domain))
+        # Extract PathLength
+        path = urlparse.urlparse(has_link)
+        email_features.append(len(path))
+        # Extract QueryLength
+        queries = has_link.split("?")
+        query_length = 0
+        for i in queries[1:]:
+            query_length = query_length + len(queries[i])
+        email_features.append(query_length)
+        # Extract DoubleSlashInPath
+        path = urlparse.urlparse(has_link)
+        double_slash_in_path = path.count("\\")
+        email_features.append(double_slash_in_path)
+        # Extract NumSensitiveWords
+        # Extract EmbeddedBrandName
+        # Extract PctExtHyperlinks (Counts the percentage of external hyperlinks in webpage HTML source code)
+        # Extract PctExtResourceUrls
+        # Extract ExtFavicon
+        # Extract InsecureForms
+        # Extract RelativeFormAction
+        # Extract ExtFormAction
+        # Extract AbnormalFormAction
+        # Extract PctNullSelfRedirectHyperlinks
+        # Extract FrequentDomainNameMismatch
+        # Extract FakeLinkInStatusBar
+        # Extract RightClickDisabled
+        # Extract PopUpWindow
+        # Extarct SubmitInfoToEmail
+        # Extract IframeOrFrame
+        # Extract MissingTitle
+        # Extract ImagesOnlyInForm
+        # Extract SubdomainLevelRT
+        # Extract UrlLengthRT
+        # Extract PctExtResourceUrlsRT
+        # Extract AbnormalExtFormActionR
+        # Extract ExtMetaScriptLinkRT
+        # Extract PctExtNullSelfRedirectHyperlinksRT
+        # Extract CLASS_LABEL
+
+    #if there are no links, it's unlikely to be phishing
+    else:
+        email_features = {1,3,1,5,72,0,0,0,0,0,0,0,0,0,0,1,
+                          0,0,0,0,0,21,44,0,0,0,0,0,0.25,1,1,
+                          0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,-1,1,1}
     # Combine the extracted features into a numpy array
     email_features = np.array(email_features)
 
