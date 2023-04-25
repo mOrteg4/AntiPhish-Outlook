@@ -95,15 +95,14 @@ def transform_email_to_features(preprocessed_email_content):
         https = has_link.count("https")
         email_features.append(https)
         # Extract RandomString
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         pattern = r"[a-z0-9]{8,}"
         matches = re.findall(pattern, has_link)
         if matches:
-            # result = b"\x01"
-            result = "Random string found"
+            result = b"\x01"
+            print("Random string found")
         else:
-            # result = b"\x00"
-            result = "Random string not found"
+            result = b"\x00"
+            print("Random string not found")
         email_features.append(result)
         # Extract IpAddress
         header = preprocess_email_content.get('Received')
@@ -148,7 +147,6 @@ def transform_email_to_features(preprocessed_email_content):
         num_sensitive_words = sum([1 for word in sensitive_words if re.search(word, has_link, re.IGNORECASE)])
         email_features.append(num_sensitive_words)
         # Extract EmbeddedBrandName
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         domain_names = [urlparse(link.get("href")).hostname for link in temp.find_all("a") if link.get("href")]
         domain_name_counts = Counter(domain_names)
         most_frequent_domain_name = domain_name_counts.most_common(1)[0][0]
@@ -156,21 +154,111 @@ def transform_email_to_features(preprocessed_email_content):
         subdomains = parsed_url.hostname.split(".")[:-2]
         path = parsed_url.path
         if most_frequent_domain_name in subdomains or most_frequent_domain_name in path:
-            # result = b"\x01"
-            result = "Brand name embedded"
+            result = b"\x01"
+            print("Brand name embedded")
         else:
-            # result = b"\x00"
-            result = "Brand name not embedded"
+            result = b"\x00"
+            print("Brand name not embedded")
         email_features.append(result)
         # Extract PctExtHyperlinks (Counts the percentage of external hyperlinks in webpage HTML source code)
+        total_links = 0
+        external_links = 0
+        for link in temp.find_all('a'):
+            href = link.get('href')
+            if href and (href.startswith('http') or href.startswith('//')):
+                domain = tldextract.extract(href).domain
+                if domain != tldextract.extract(has_link).domain:
+                    external_links += 1
+                total_links += 1
+        if total_links > 0:
+            pct_external_links = (external_links / total_links) * 100
+            print(f"Percentage of external hyperlinks: {pct_external_links:.2f}%")
+            result = f"{pct_external_links:.2f}%"
+        else:
+            print("No hyperlinks found in HTML")
+            result = "0%"
+        email_features.append(result)
         # Extract PctExtResourceUrls
+        total_resources = 0
+        external_resources = 0
+        for tag in temp.find_all():
+            if tag.has_attr('href'):
+                href = tag['href']
+                if href.startswith('http') or href.startswith('//'):
+                    domain = tldextract.extract(href).domain
+                    if domain != tldextract.extract(has_link).domain:
+                        external_resources += 1
+                total_resources += 1
+            if tag.has_attr('src'):
+                src = tag['src']
+                if src.startswith('http') or src.startswith('//'):
+                    domain = tldextract.extract(src).domain
+                    if domain != tldextract.extract(has_link).domain:
+                        external_resources += 1
+                total_resources += 1
+        if total_resources > 0:
+            pct_external_resources = (external_resources / total_resources) * 100
+            print(f"Percentage of external resource URLs: {pct_external_resources:.2f}%")
+            result = f"{pct_external_resources:.2f}%"
+        else:
+            print("No resource URLs found in HTML")
+            result = "0%"
+        email_features.append(result)
         # Extract ExtFavicon
+        for link in temp.find_all('link', rel='icon'):
+            href = link.get('href')
+            if href:
+                domain = tldextract.extract(href).domain
+                if domain != tldextract.extract(has_link).domain:
+                    print(f"External favicon found: {href}")
+                    result = b"\x01"
+                else:
+                    print("External favicon not found")
+                    result = b"\x00"
+        email_features.append(result)
         # Extract InsecureForms
+        for form in temp.find_all('form'):
+            action = form.get('action')
+            if action and not action.startswith("#"):
+                parsed_url = urlparse(action)
+                if parsed_url.scheme != "https":
+                    print(f"Insecure form action found: {action}")
+                    result = b"\x01"
+                else:
+                    print("Insecure form action not found")
+                    result = b"\x00"
+        email_features.append(result)
         # Extract RelativeFormAction
+        for form in temp.find_all('form'):
+            action = form.get('action')
+            if action and not action.startswith("#"):
+                parsed_url = urlparse(action)
+                if not parsed_url.scheme and not parsed_url.netloc:
+                    print(f"Relative form action found: {action}")
+                    result = b"\x01"
+                else:
+                    print("Relative form action not found")
+                    result = b"\x00"
+        email_features.append(result)
         # Extract ExtFormAction
+        for form in temp.find_all('form'):
+            action = form.get('action')
+            if action and not action.startswith("#"):
+                domain = tldextract.extract(action).domain
+                if domain != "example" and domain != "localhost":
+                    print(f"External form action found: {action}")
+                    result = b"\x01"
+                else:
+                    print("External form action not found:")
+                    result = b"\x00"
+        email_features.append(result)
         # Extract AbnormalFormAction
+        for form in temp.find_all('form'):
+            action = form.get('action')
+            if "#" in action or action == "about:blank" or action == "" or action == "javascript:true":
+                print(f"Abnormal form action found: {action}")
+                email_features.append(action)
         # Extract PctNullSelfRedirectHyperlinks
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         hyperlinks = [link.get("href") for link in temp.find_all("a")]
         num_null_hyperlinks = 0
         num_self_redirect_hyperlinks = 0
@@ -188,95 +276,87 @@ def transform_email_to_features(preprocessed_email_content):
         pct_abnormal_hyperlinks = num_abnormal_hyperlinks / total_hyperlinks * 100
         pct_null_self_redirect_hyperlinks = pct_null_hyperlinks + pct_self_redirect_hyperlinks + pct_abnormal_hyperlinks
         if pct_null_self_redirect_hyperlinks > 20:
-            # result = b"\x01" 
-            result = "Suspicious percentage of null or self-redirect hyperlinks"
+            result = b"\x01" 
+            print("Suspicious percentage of null or self-redirect hyperlinks")
         else:
-            # result = b"\x00" 
-            result = "Normal percentage of null or self-redirect hyperlinks"
+            result = b"\x00" 
+            print("Normal percentage of null or self-redirect hyperlinks")
         # Extract FrequentDomainNameMismatch
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         links = [link.get("href") for link in temp.find_all("a")]
         url_domain = tldextract.extract(has_link).domain
         domains = [tldextract.extract(link).domain for link in links]
         domain_counts = Counter(domains)
         most_frequent_domain = domain_counts.most_common(1)[0][0]
         if most_frequent_domain != url_domain:
-            # result = b"\x01" 
-            result = "Frequent domain name mismatch found"
+            result = b"\x01" 
+            print("Frequent domain name mismatch found")
         else:
-            # result = b"\x00" 
-            result = "Frequent domain name mismatch not found"
+            result = b"\x00" 
+            print("Frequent domain name mismatch not found")
         email_features.append(result)
         # Extract FakeLinkInStatusBar
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         if "onMouseOver" in html_content:
-            # result = b"\x01" 
-            result = "Fake link in status bar found"
+            result = b"\x01" 
+            print("Fake link in status bar found")
         else:
-            # result = b"\x00" 
-            result = "Fake link in status bar not found"
+            result = b"\x00" 
+            print("Fake link in status bar not found")
         email_features.append(result)
         # Extract RightClickDisabled
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         right_click_pattern = re.compile(r'document\.oncontextmenu\s*=\s*function\s*\(\s*\)\s*{\s*return\s+false;\s*}')
         right_click_disabled = bool(right_click_pattern.search(html_content))
         if right_click_disabled is True:
-            # result = b"\x01"
-            result = "Right_click_disabled: Yes"
+            result = b"\x01"
+            print("Right_click_disabled: Yes")
         else:
-            # result = b"\x00"
-            result = "Right_click_disabled: No"
+            result = b"\x00"
+            print("Right_click_disabled: No")
         email_features.append(result)
         # Extract PopUpWindow
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         if "window.open" in html_content:
-            # result = b"\x01"
-            result = "PopUpWindow: Yes"
+            result = b"\x01"
+            print("PopUpWindow: Yes")
         else:
-            # result = b"\x00"
-            result = "PopUpWindow: No"
+            result = b"\x00"
+            print("PopUpWindow: No")
         email_features.append(result)
         # Extract SubmitInfoToEmail
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         mailto_links = temp.find_all("a", href=lambda href: href and href.startswith("mailto:"))
         if mailto_links:
-            # result = b"\x01"
-            result = "SubmitInfoToEmail: Yes"
+            result = b"\x01"
+            print("SubmitInfoToEmail: Yes")
         else:
-            # result = b"\x00"
-            result = "SubmitInfoToEmail: No"
+            result = b"\x00"
+            print("SubmitInfoToEmail: No")
         email_features.append(result)
         # Extract IframeOrFrame
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         iframes = temp.find_all('iframe')
         frames = temp.find_all('frame')
         if iframes or frames:
-            # result = b"\x01"
-            result = "Iframe or frame found"
+            result = b"\x01"
+            print("Iframe or frame found")
         else:
-            # result = b"\x00"
-            result = "Iframe or frame not found"
+            result = b"\x00"
+            print("Iframe or frame not found")
         email_features.append(result)
         # Extract MissingTitle
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         title = temp.find('title')
         if title and title.string:
-            # result = b"\x01"
-            result = "Title found"
+            result = b"\x01"
+            print("Title found")
         else:
-            # result = b"\x00"
-            result = "Title not found or empty"
+            result = b"\x00"
+            print("Title not found or empty")
         email_features.append(result)
         # Extract ImagesOnlyInForm
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         forms = temp.find_all('form')
         for form in forms:
             if all([img.has_attr('src') for img in form.find_all('img')]) and not form.get_text().strip():
-                # result = b"\x01"
-                result = "Images only in form"
+                result = b"\x01"
+                print("Images only in form")
             else:
-                # result = b"\x00"
-                result = "Text found in form"
+                result = b"\x00"
+                print("Text found in form")
         email_features.append(result)
         # Extract SubdomainLevelRT
         subdomain_level = has_link.hostname.count('.')
@@ -313,21 +393,18 @@ def transform_email_to_features(preprocessed_email_content):
             pct_external_urls = 0
         email_features.append(pct_external_urls)
         # Extract AbnormalExtFormActionR
-        '''UNSURE ABOUT THIS, might need to return in binary'''
         pattern = re.compile(r'<form.*?\saction=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL)
         matches = pattern.findall(html_content)
         for match in matches:
-            # check for foreign domain
             if "http" in match and "://" not in match[:10]:
-                # result = b"\x01"
-                result = "Has foreign domain"
-            # check for about:blank or empty string
+                result = b"\x01"
+                print("Has foreign domain")
             elif match.strip() == "about:blank" or not match.strip():
-                # result = b"\x01"
-                result = "Has about:blank, or empty string"
+                result = b"\x01"
+                print("Has about:blank, or empty string")
             else:
-                # result = b"\x00"
-                result = "Normal form action attribute"
+                result = b"\x00"
+                print("Normal form action attribute")
         email_features.append(result)
         # Extract ExtMetaScriptLinkRT
         pattern = re.compile(r'(?:meta|script|link).*?\s(?:href|src)=["\'](http.*?)[&"\']', re.IGNORECASE | re.DOTALL)
@@ -362,16 +439,12 @@ def transform_email_to_features(preprocessed_email_content):
                 continue
             parsed_href = urlparse(href)
             if parsed_href.scheme and parsed_href.netloc:
-                # check if the link has a different domain name
                 if parsed_href.netloc != urlparse(temp.base.get('href')).netloc:
                     ext_links += 1
                 elif parsed_href.path.startswith('#'):
-                    # check if the link starts with "#"
                     self_redirect_links += 1
                 elif parsed_href.path.startswith('JavaScript::'):
-                    # check if the link uses "JavaScript:: void(0)"
                     self_redirect_links += 1
-        # calculate the percentage of links with different domain names, "#", or "JavaScript:: void(0)"
         if total_links > 0:
             pct_ext_links = ext_links / total_links * 100
             pct_null_links = null_links / total_links * 100
