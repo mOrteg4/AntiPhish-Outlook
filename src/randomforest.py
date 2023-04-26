@@ -452,8 +452,7 @@ def transform_email_to_features(preprocessed_email_content):
         elif total_count == 0:
             return 0, 0, 0
         email_features.append(pct_ext_links, pct_null_links, pct_self_redirect_links)
-            # Extract CLASS_LABEL
-            ### NO IDEA ####
+            # CLASS_LABEL COLUMN IS EMPTY BC THE MACHINE LEARNING MODEL IS SUPPOSE TO PREDICT THIS AND INSERT IT's ANSWER
 
     #if there are no links, it's unlikely to be phishing
     else:
@@ -471,8 +470,8 @@ def transform_email_to_features(preprocessed_email_content):
 features = pd.read_csv('Phishing_Legitimate_full.csv')
 features = pd.get_dummies(features)
 
-labels = np.array(features['id'])
-features = features.drop('id', axis=1)
+labels = np.array(features['CLASS_LABEL'])
+features = features.drop('CLASS_LABEL', axis=1)
 feature_list = list(features.columns)
 features = np.array(features)
 
