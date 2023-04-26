@@ -161,6 +161,7 @@ def transform_email_to_features(preprocessed_email_content):
             print("Brand name not embedded")
         email_features.append(result)
         # Extract PctExtHyperlinks (Counts the percentage of external hyperlinks in webpage HTML source code)
+        # IT SHOULD BE A FLOAT (Ex. 0, 1, 0.1, 0.909091, etc.)
         total_links = 0
         external_links = 0
         for link in temp.find_all('a'):
@@ -205,6 +206,7 @@ def transform_email_to_features(preprocessed_email_content):
             result = "0%"
         email_features.append(result)
         # Extract ExtFavicon
+        # IT SHOULD BE A FLOAT (Ex. 0, 1, 0.1, 0.909091, etc.)
         for link in temp.find_all('link', rel='icon'):
             href = link.get('href')
             if href:
@@ -259,6 +261,7 @@ def transform_email_to_features(preprocessed_email_content):
                 print(f"Abnormal form action found: {action}")
                 email_features.append(action)
         # Extract PctNullSelfRedirectHyperlinks
+        # IT SHOULD BE A FLOAT (Ex. 0, 1, 0.1, 0.909091, etc.)
         hyperlinks = [link.get("href") for link in temp.find_all("a")]
         num_null_hyperlinks = 0
         num_self_redirect_hyperlinks = 0
