@@ -8,12 +8,11 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
-import json
 
 def preprocess_email_content(email_content):
     print("Preprocessing email contents...")
-    my_string = json.dumps(email_content)
-    preprocessed_content = my_string.lower()
+    extracted = email_content['email_contents']
+    preprocessed_content = extracted.lower()
     return preprocessed_content
 
 def transform_email_to_features(preprocessed_email_content):
@@ -466,7 +465,7 @@ def check_phishing(email_data):
 
     # Predict if the email is a phishing attempt using the random forest model
     #possibly change this back to without the reshape
-    phishing_prediction = 0#rf.predict(email_features.reshape(1, -1))
+    phishing_prediction = 0 #rf.predict(email_features.reshape(1, -1))
 
     # Set a threshold for the prediction to classify it as phishing or not
     print(phishing_prediction)
@@ -482,7 +481,7 @@ def check_phishing(email_data):
 
 # Load and preprocess the dataset
 print("Reading csv file...")
-features = pd.read_csv('Phishing_Legitimate_full.csv')
+features = pd.read_csv('src/Phishing_Legitimate_full.csv')
 features = pd.get_dummies(features)
 
 print("Settings labels & features...")
@@ -498,26 +497,6 @@ train_features, test_features, train_labels, test_labels = train_test_split(feat
 print("Training the RandomForest model...")
 rf = RandomForestRegressor(n_estimators=1000, random_state=42)
 rf.fit(train_features, train_labels)
-
-# Get the currently open email in Outlook
-#email_content = "what"#get_current_email()
-
-# Preprocess the email content
-#preprocessed_email_content = preprocess_email_content(email_content)
-
-# Transform the preprocessed email content into a format compatible with the random forest model
-#email_features = transform_email_to_features(preprocessed_email_content)
-
-# Predict if the email is a phishing attempt using the random forest model
-#possibly change this back to without the reshape
-#phishing_prediction = rf.predict(email_features.reshape(1, -1))
-
-# Set a threshold for the prediction to classify it as phishing or not
-#phishing_threshold = 0.5
-#if phishing_prediction > phishing_threshold:
-    #print("This email may be a phishing attempt.")
-#else:
-    #print("This email seems legitimate.")
 
 # Everything under here is to help us fix the model, so I commented it out since we dont need it anymore
 # Visualize the RandomForest 

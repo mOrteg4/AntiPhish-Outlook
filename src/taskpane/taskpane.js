@@ -50,6 +50,22 @@ async function processEmail() {
   }
 }
 
+async function checkForResponse() {
+  try {
+    document.getElementById("status-message").innerText = "Python file is about to finish...";
+    const response = await fetch('http://localhost:5000/');
+    const text = await response.text();
+    document.getElementById("status-message").innerText = text;
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById("status-message").innerText = "Waiting for python file to load...";
+    // Wait for 5 seconds before calling the function again
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    document.getElementById("status-message").innerText = "Checking again...";
+    checkForResponse();
+  }
+}
+
 
 export async function run() {
   // Get a reference to the current message
@@ -67,17 +83,7 @@ export async function run() {
     var emailContent = item.subject + " " + body;
     processEmail()
     document.getElementById("status-message").innerText = "Checking..";
-    try {
-      // Make a request to the Flask app and get the text
-      const response = await fetch('http://localhost:5000/');
-      const text = await response.text();
-
-      // Display the text on the page
-      document.getElementById("status-message").innerText = text;
-    } catch (error) {
-      // Handle the error
-      document.getElementById("status-message").innerText = "Error: " + error.message;
-    }
+    checkForResponse()
   });
 }
 
