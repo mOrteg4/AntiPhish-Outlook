@@ -40,14 +40,15 @@ export async function run() {
 
     // Combine subject and body
     var emailContent = item.subject + " " + body;
-
-    // Update the status message to "Checking..."
+//    console.log('prediction3');    // Update the status message to "Checking..."
     document.getElementById("status-message").innerText = "Checking...";
-
+  //  console.log('prediction3');
     // Call the Flask API to get the prediction
     const response = await postData("http://localhost:3000/predict_phishing", { email_content: emailContent });
-    const prediction = response.prediction;
+    //console.log('prediction3');
 
+    const prediction = response.prediction;
+    //console.log('prediction3');
     // Display the prediction or use it for further processing
     console.log(prediction);
 

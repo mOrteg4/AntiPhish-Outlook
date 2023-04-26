@@ -6,7 +6,7 @@ from sklearn.tree import export_graphviz
 import pydot
 import re
 import tldextract
-import urlparse
+from urllib.parse import urlparse
 import win32com.client
 import requests
 from bs4 import BeautifulSoup

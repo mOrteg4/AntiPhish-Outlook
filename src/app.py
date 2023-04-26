@@ -9,7 +9,9 @@ def predict_phishing():
     
     # Preprocess and predict using the RandomForest model
     preprocessed_email_content = randomforest.preprocess_email_content(email_content)
+
     email_features = randomforest.transform_email_to_features(preprocessed_email_content)
+
     phishing_prediction = randomforest.rf.predict(email_features)
     
     return jsonify({"prediction": float(phishing_prediction)})
