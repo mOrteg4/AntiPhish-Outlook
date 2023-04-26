@@ -2,20 +2,18 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.tree import export_graphviz
-import pydot
 import re
 import tldextract
 from urllib.parse import urlparse
-import win32com.client
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
-import sys
+import json
 
 def preprocess_email_content(email_content):
     print("Preprocessing email contents...")
-    preprocessed_content = str(email_content).lower()
+    my_string = json.dumps(email_content)
+    preprocessed_content = my_string.lower()
     return preprocessed_content
 
 def transform_email_to_features(preprocessed_email_content):
