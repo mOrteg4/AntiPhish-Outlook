@@ -453,12 +453,13 @@ def transform_email_to_features(preprocessed_email_content):
     return email_features
 
 def check_phishing(email_data):
-    print(email_data)
+    
     # Get the currently open email in Outlook
     #email_content = email_data
 
     # Preprocess the email content
-    #preprocessed_email_content = preprocess_email_content(email_content)
+    preprocessed_email_content = preprocess_email_content(email_data)
+    print(preprocessed_email_content)
 
     # Transform the preprocessed email content into a format compatible with the random forest model
     #email_features = transform_email_to_features(preprocessed_email_content)
