@@ -13,16 +13,41 @@ Office.onReady((info) => {
   }
 });
 
+// Function to get email contents
+async function getEmailContents() {
+  return new Promise((resolve, reject) => {
+    Office.context.mailbox.item.body.getAsync("text", {}, function (asyncResult) {
+      if (asyncResult.status === Office.AsyncResultStatus.Failed) {
+        reject(asyncResult.error);
+      } else {
+        resolve(asyncResult.value);
+      }
+    });
+  });
+}
 
-async function postData(url = "", data = {}) {
-  const response = await fetch(url, {
+// Function to send email contents to Flask server
+async function sendEmailContentsToFlask(emailContents) {
+  const flaskServerURL = "http://localhost:5000/receive_email";
+  const response = await fetch(flaskServerURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ email_contents: emailContents }),
   });
-  return await response.json();
+  return response.json();
+}
+
+// Function to handle the whole process
+async function processEmail() {
+  try {
+    const emailContents = await getEmailContents();
+    const response = await sendEmailContentsToFlask(emailContents);
+    console.log(response);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
 
@@ -40,44 +65,19 @@ export async function run() {
 
     // Combine subject and body
     var emailContent = item.subject + " " + body;
-//    console.log('prediction3');    // Update the status message to "Checking..."
-    document.getElementById("status-message").innerText = "Checking...";
-  //  console.log('prediction3');
-    // Call the Flask API to get the prediction
-    const response = await postData("http://localhost:3000/predict_phishing", { email_content: emailContent });
-    //console.log('prediction3');
+    processEmail()
+    document.getElementById("status-message").innerText = "Checking..";
+    try {
+      // Make a request to the Flask app and get the text
+      const response = await fetch('http://localhost:5000/');
+      const text = await response.text();
 
-    const prediction = response.prediction;
-    //console.log('prediction3');
-    // Display the prediction or use it for further processing
-    console.log(prediction);
-
-    // Update the status message based on the prediction
-    const message = prediction === 1 ? "Phishing detected!" : "No phishing detected.";
-    document.getElementById("status-message").innerText = message;
-  });
-}
-
-
-
-
-
-function handleButtonAction(event) {
-  // Get the item (email) being read
-  var item = Office.context.mailbox.item;
-
-  // Get the email subject
-  var subject = item.subject;
-
-  // Get the email body
-  item.body.getAsync("text", { asyncContext: null }, function (result) {
-    var body = result.value;
-    // Process the email content and interact with your Python script as needed
-
-    // ... Your logic here ...
-
-    // Don't forget to call event.completed() when you're done processing
-    event.completed();
+      // Display the text on the page
+      document.getElementById("status-message").innerText = text;
+    } catch (error) {
+      // Handle the error
+      document.getElementById("status-message").innerText = "Error: " + error.message;
+    }
   });
 }
 

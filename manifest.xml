@@ -11,6 +11,8 @@
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
   <AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>http://127.0.0.1:5000/</AppDomain>
+    <AppDomain>http://localhost:5000/</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
