@@ -52,16 +52,15 @@ async function processEmail() {
 
 async function checkForResponse() {
   try {
-    document.getElementById("status-message").innerText = "Python file is about to finish...";
+    document.getElementById("status-message").innerText = "Checking if python file is loaded...";
     const response = await fetch('http://localhost:5000/');
     const text = await response.text();
     document.getElementById("status-message").innerText = text;
   } catch (error) {
     console.error("Error:", error);
-    document.getElementById("status-message").innerText = "Waiting for python file to load...";
+    document.getElementById("status-message").innerText = "Python file has not loaded yet. Please Wait.";
     // Wait for 5 seconds before calling the function again
     await new Promise(resolve => setTimeout(resolve, 5000));
-    document.getElementById("status-message").innerText = "Checking again...";
     checkForResponse();
   }
 }
