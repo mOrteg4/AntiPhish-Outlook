@@ -13,34 +13,18 @@ from bs4 import BeautifulSoup
 from collections import Counter
 import sys
 
-def check_phishing(email_data):
-    print(email_data)
-    return "This is a phishing attempt. Report this immediately"
-
 def preprocess_email_content(email_content):
     print("Preprocessing email contents...")
-    preprocessed_content = email_content.lower()
+    preprocessed_content = str(email_content).lower()
     return preprocessed_content
 
-def get_current_email():
-    print("Getting current email...")
-    outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    explorer = outlook.Application.ActiveExplorer()
-    selection = explorer.Selection
-    if len(selection) == 1:
-        email = selection.Item(1)
-        return email.Subject + " " + email.Body
-    else:
-        raise Exception("No email is currently open or more than one email is selected.")
-
-# Add transform_email_to_features function here
 def transform_email_to_features(preprocessed_email_content):
     # Initialize a list to store the extracted features
     email_features = []
 
     #check if there are links
     link = re.compile('<a[^>]+href=\'(.*?)\'[^>]*>(.*)?</a>')
-    has_link = link.search(preprocess_email_content)
+    has_link = link.search(preprocessed_email_content)
     # GET request to URL
     response = requests.get(has_link)
     # pasrse HTML content
@@ -52,7 +36,7 @@ def transform_email_to_features(preprocessed_email_content):
         email_features.append(re.findall('\d+',has_link))
         # Extract NumDots from preprocessed_email_content
         num_dots = has_link.count(".")
-        email_features.append(num_dots)
+        email_features.append(num_dots) 
         # Extract SubdomainLevel
         ext = tldextract.extract(has_link) #https://pypi.org/project/tldextract/
         sub = ext.subdomain
@@ -469,6 +453,31 @@ def transform_email_to_features(preprocessed_email_content):
     email_features = np.array(email_features)
 
     return email_features
+
+def check_phishing(email_data):
+    print(email_data)
+    # Get the currently open email in Outlook
+    #email_content = email_data
+
+    # Preprocess the email content
+    #preprocessed_email_content = preprocess_email_content(email_content)
+
+    # Transform the preprocessed email content into a format compatible with the random forest model
+    #email_features = transform_email_to_features(preprocessed_email_content)
+
+    # Predict if the email is a phishing attempt using the random forest model
+    #possibly change this back to without the reshape
+    phishing_prediction = 0#rf.predict(email_features.reshape(1, -1))
+
+    # Set a threshold for the prediction to classify it as phishing or not
+    print(phishing_prediction)
+    phishing_threshold = 0.5
+    if phishing_prediction > phishing_threshold:
+        print("This email may be a phishing attempt.")
+        return "This is a phishing attempt. Report this immediately"
+    else:
+        print("This email seems legitimate.")
+        return "This is a legitimate."
 
 
 
