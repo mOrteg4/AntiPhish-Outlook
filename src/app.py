@@ -10,8 +10,8 @@ received_email_data = None
 def checkemail():
     global received_email_data
     if received_email_data == None:
-        print("No email found.")
-        return "No email found"
+        print("Ready to check.")
+        return "Ready to check"
     print("Getting phishing data...")
     return randomforest.check_phishing(received_email_data)
 
