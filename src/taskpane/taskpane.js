@@ -52,7 +52,7 @@ async function processEmail() {
 
 async function checkForResponse() {
   try {
-    document.getElementById("status-message").innerText = "Checking if python file is loaded...";
+    document.getElementById("status-message").innerText = "Python file has not loaded yet. Please Wait.";
     const response = await fetch('http://localhost:5000/');
     const text = await response.text();
     document.getElementById("status-message").innerText = text;
@@ -81,7 +81,7 @@ export async function run() {
     // Combine subject and body
     var emailContent = item.subject + " " + body;
     processEmail()
-    document.getElementById("status-message").innerText = "Checking..";
+    document.getElementById("status-message").innerText = "Checking...";
     checkForResponse()
   });
 }
