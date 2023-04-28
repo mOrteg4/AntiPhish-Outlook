@@ -5,7 +5,7 @@
   <ProviderName>CECS491A</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Phishing Detection"/>
-  <Description DefaultValue="A template to get started."/>
+  <Description DefaultValue="An Add-In designed to protect users from phishing attacks."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
