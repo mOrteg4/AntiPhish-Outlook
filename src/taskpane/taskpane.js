@@ -85,22 +85,3 @@ export async function run() {
     checkForResponse()
   });
 }
-
-const toggleSwitch = document.querySelector('#toggle-switch');
-toggleSwitch.addEventListener('change', switchTheme);
-function switchTheme(event) {
-  if (event.target.checked) {
-  document.body.classList.add('dark-mode');
-  } else {
-  document.body.classList.remove('dark-mode');
-  }
-}
-
-const isDarkMode = JSON.parse(localStorage.getItem('dark-mode'));
-if (isDarkMode) {
-toggleSwitch.checked = true;
-document.body.classList.add('dark-mode');
-}
-toggleSwitch.addEventListener('change', function() {
-localStorage.setItem('dark-mode', toggleSwitch.checked);
-});
