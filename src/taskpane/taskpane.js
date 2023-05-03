@@ -65,6 +65,23 @@ async function checkForResponse() {
   }
 }
 
+function detectDarkMode() {
+  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function setDarkModeClass() {
+      if (darkModeMediaQuery.matches) {
+          document.documentElement.classList.add('dark-mode');
+      } else {
+          document.documentElement.classList.remove('dark-mode');
+      }
+  }
+  
+  setDarkModeClass();
+
+  darkModeMediaQuery.addEventListener('change', setDarkModeClass);
+}
+
+detectDarkMode();
 
 export async function run() {
   // Get a reference to the current message
