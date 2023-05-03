@@ -461,21 +461,22 @@ def check_phishing(email_data):
     print(preprocessed_email_content)
 
     # Transform the preprocessed email content into a format compatible with the random forest model
-    #email_features = transform_email_to_features(preprocessed_email_content)
+    email_features = transform_email_to_features(preprocessed_email_content)
 
     # Predict if the email is a phishing attempt using the random forest model
     #possibly change this back to without the reshape
-    phishing_prediction = 0 #rf.predict(email_features.reshape(1, -1))
+    phishing_prediction = rf.predict(email_features.reshape(1, -1))
 
     # Set a threshold for the prediction to classify it as phishing or not
     print(phishing_prediction)
+    test = str(phishing_prediction)
     phishing_threshold = 0.5
     if phishing_prediction > phishing_threshold:
-        print("This email may be a phishing attempt.")
-        return "This is a phishing attempt. Report this immediately"
+        print("This email may be a phishing attempt. Prediction: " + test)
+        return "This is a phishing attempt. Report this immediately.  Prediction: " + test
     else:
-        print("This email seems legitimate.")
-        return "This is a legitimate."
+        print("This email seems legitimate. Prediction: " + test)
+        return "This is a legitimate. Prediction: " + test
 
 
 
