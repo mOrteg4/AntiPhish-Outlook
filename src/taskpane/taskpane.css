@@ -111,3 +111,16 @@
     min-width: 196px;
   }
 }
+
+.dark-mode {
+  background-color: #1c1c1e;
+  color: #ffffff;
+}
+
+.dark-mode .ms-welcome__header {
+  background-color: #3a3a3c;
+}
+
+.dark-mode * {
+  color: #ffffff;
+}
