@@ -10,9 +10,9 @@ Office.onReady((info) => {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
-    // applyOfficeTheme()
+    detectDarkMode();
   }
-});
+})
 
 // Function to get email contents
 async function getEmailContents() {
@@ -66,24 +66,6 @@ async function checkForResponse() {
   }
 }
 
-function detectDarkMode() {
-  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-  function setDarkModeClass() {
-      if (darkModeMediaQuery.matches) {
-          document.documentElement.classList.add('dark-mode');
-      } else {
-          document.documentElement.classList.remove('dark-mode');
-      }
-  }
-  
-  setDarkModeClass();
-
-  darkModeMediaQuery.addEventListener('change', setDarkModeClass);
-}
-
-detectDarkMode();
-
 export async function run() {
   // Get a reference to the current message
   const item = Office.context.mailbox.item;
@@ -104,23 +86,18 @@ export async function run() {
   });
 }
 
-// async function applyOfficeTheme() {
-//   try {
-//     // Get office theme colors.
-//     const theme = await Office.context.officeTheme.getThemeAsync();
-//     const isDarkTheme = theme.theme === "black";
+function detectDarkMode() {
+  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-//     // Set body background and text color based on the theme.
-//     const bodyBackgroundColor = isDarkTheme ? theme.bodyBackgroundColor : "#FFFFFF";
-//     const bodyForegroundColor = isDarkTheme ? theme.bodyForegroundColor : "#000000";
-//     const textColor = isDarkTheme ? "#FFFFFF" : "#000000";
+  function setDarkModeClass() {
+      if (darkModeMediaQuery.matches) {
+          document.documentElement.classList.add('dark-mode');
+      } else {
+          document.documentElement.classList.remove('dark-mode');
+      }
+  }
+  
+  setDarkModeClass();
 
-//     // Apply body background color and text color to CSS classes.
-//     $('.ms-welcome__header').css('background-color', bodyBackgroundColor);
-//     $('.body').css('background-color', bodyForegroundColor);
-//     $('.ms-welcome__header').css('color', textColor);
-//     $('.body').css('color', textColor);
-//   } catch (error) {
-//     console.error("Error applying Office theme:", error);
-//   }
-// }
+  darkModeMediaQuery.addEventListener('change', setDarkModeClass);
+}
