@@ -10,6 +10,7 @@ Office.onReady((info) => {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
+    // applyOfficeTheme()
   }
 });
 
@@ -102,3 +103,24 @@ export async function run() {
     checkForResponse()
   });
 }
+
+// async function applyOfficeTheme() {
+//   try {
+//     // Get office theme colors.
+//     const theme = await Office.context.officeTheme.getThemeAsync();
+//     const isDarkTheme = theme.theme === "black";
+
+//     // Set body background and text color based on the theme.
+//     const bodyBackgroundColor = isDarkTheme ? theme.bodyBackgroundColor : "#FFFFFF";
+//     const bodyForegroundColor = isDarkTheme ? theme.bodyForegroundColor : "#000000";
+//     const textColor = isDarkTheme ? "#FFFFFF" : "#000000";
+
+//     // Apply body background color and text color to CSS classes.
+//     $('.ms-welcome__header').css('background-color', bodyBackgroundColor);
+//     $('.body').css('background-color', bodyForegroundColor);
+//     $('.ms-welcome__header').css('color', textColor);
+//     $('.body').css('color', textColor);
+//   } catch (error) {
+//     console.error("Error applying Office theme:", error);
+//   }
+// }
