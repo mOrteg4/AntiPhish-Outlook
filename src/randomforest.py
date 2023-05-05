@@ -57,18 +57,18 @@ def transform_email_to_features(preprocessed_email_content):
         # Extract AtSymbol
         if "@" in has_link:
             print("At symbol found in URL")
-            result = "1"
+            result = 1
         else:
             print("At symbol not found in URL")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract TildeSymbol
         if "~" in has_link:
             print("At symbol found in URL")
-            result = "1"
+            result = 1
         else:
             print("At symbol not found in URL")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract NumUnderscore from preprocessed_email_content
         num_underscore = has_link.count("_")
@@ -93,19 +93,19 @@ def transform_email_to_features(preprocessed_email_content):
         match = re.search(pattern, has_link)
         if match:
             print("At symbol found in URL")
-            result = "1"
+            result = 1
         else:
             print("At symbol not found in URL")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract RandomString
         pattern = r"[a-z0-9]{8,}"
         matches = re.findall(pattern, has_link)
         if matches:
-            result = "1"
+            result = 1
             print("Random string found")
         else:
-            result = "0"
+            result = 0
             print("Random string not found")
         email_features.append(result)
         # Extract IpAddress
@@ -117,39 +117,39 @@ def transform_email_to_features(preprocessed_email_content):
         try:
             ipaddress.ip_address(hostname)
             print("The hostname is an IP address.")
-            result = "1"
+            result = 1
         except ValueError:
             print("The hostname is not an IP address.")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract DomainInSubdomains
         subdomain, _, tld = tldextract.extract(has_link)
         if tld in subdomain:
             print("The TLD or ccTLD is used in the subdomain.")
-            result = "1"
+            result = 1
         else:
             print("The TLD or ccTLD is not used in the subdomain.")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract DomainInPaths
         path = urlparse.urlparse(has_link)
         tld = tldextract.extract(path).suffix
         if tld:
             print("The TLD or ccTLD is used in the path.")
-            result = "1"
+            result = 1
         else:
             print("The TLD or ccTLD is not used in the path.")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract HttpsInHostname
         parsed_url = urlparse.unquote(has_link)
         hostname = urlparse.urlparse(parsed_url).hostname
         if re.search(r"https", hostname):
             print("HTTPS is obfuscated in the hostname.")
-            result = "1"
+            result = 1
         else:
             print("HTTPS is not obfuscated in the hostname.")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract HostnameLength
         ext = tldextract.extract(has_link)
@@ -169,10 +169,10 @@ def transform_email_to_features(preprocessed_email_content):
         path = parsed_url.path
         if re.search(r"\/\/", path):
             print("// exists in the path.")
-            result = "1"
+            result = 1
         else:
             print("// does not exist in the path.")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract NumSensitiveWords
         sensitive_words = ["secure", "account", "webscr", "login", "ebayisapi", "signin", "banking", "confirm"]
@@ -186,10 +186,10 @@ def transform_email_to_features(preprocessed_email_content):
         subdomains = parsed_url.hostname.split(".")[:-2]
         path = parsed_url.path
         if most_frequent_domain_name in subdomains or most_frequent_domain_name in path:
-            result = "1"
+            result = 1
             print("Brand name embedded")
         else:
-            result = "0"
+            result = 0
             print("Brand name not embedded")
         email_features.append(result)
         # Extract PctExtHyperlinks (Counts the percentage of external hyperlinks in webpage HTML source code)
@@ -208,7 +208,7 @@ def transform_email_to_features(preprocessed_email_content):
             result = format(pct_external_links, '.2f')[1:]
         else:
             print("No hyperlinks found in HTML")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract PctExtResourceUrls
         total_resources = 0
@@ -234,7 +234,7 @@ def transform_email_to_features(preprocessed_email_content):
             result = format(pct_external_resources, '.2f')[1:]
         else:
             print("No resource URLs found in HTML")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract ExtFavicon
         for link in temp.find_all('link', rel='icon'):
@@ -243,10 +243,10 @@ def transform_email_to_features(preprocessed_email_content):
                 domain = tldextract.extract(href).domain
                 if domain != tldextract.extract(has_link).domain:
                     print(f"External favicon found: {href}")
-                    result = "1"
+                    result = 1
                 else:
                     print("External favicon not found")
-                    result = "0"
+                    result = 0
         email_features.append(result)
         # Extract InsecureForms
         for form in temp.find_all('form'):
@@ -255,10 +255,10 @@ def transform_email_to_features(preprocessed_email_content):
                 parsed_url = urlparse(action)
                 if parsed_url.scheme != "https":
                     print(f"Insecure form action found: {action}")
-                    result = "1"
+                    result = 1
                 else:
                     print("Insecure form action not found")
-                    result = "0"
+                    result = 0
         email_features.append(result)
         # Extract RelativeFormAction
         for form in temp.find_all('form'):
@@ -267,10 +267,10 @@ def transform_email_to_features(preprocessed_email_content):
                 parsed_url = urlparse(action)
                 if not parsed_url.scheme and not parsed_url.netloc:
                     print(f"Relative form action found: {action}")
-                    result = "1"
+                    result = 1
                 else:
                     print("Relative form action not found")
-                    result = "0"
+                    result = 0
         email_features.append(result)
         # Extract ExtFormAction
         for form in temp.find_all('form'):
@@ -279,25 +279,25 @@ def transform_email_to_features(preprocessed_email_content):
                 domain = tldextract.extract(action).domain
                 if domain != "example" and domain != "localhost":
                     print(f"External form action found: {action}")
-                    result = "1"
+                    result = 1
                 else:
                     print("External form action not found:")
-                    result = "0"
+                    result = 0
         email_features.append(result)
         # Extract AbnormalFormAction
         form_action = "about:blank"
         if not form_action:
             print("Empty form action")
-            result = "1"
+            result = 1
         elif re.search(r"^javascript:true$", form_action):
             print("Form action contains javascript:true")
-            result = "1"
+            result = 1
         elif re.search(r"^(#|about:blank)$", form_action):
             print("Form action contains # or about:blank")
-            result = "1"
+            result = 1
         else:
             print("Normal form action")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract PctNullSelfRedirectHyperlinks
         total_links = 0
@@ -308,14 +308,13 @@ def transform_email_to_features(preprocessed_email_content):
                 total_links += 1
                 if href == '#' or href == has_link or href.startswith('file://'):
                     null_self_redirect_links += 1
-
         if total_links > 0:
             pct_null_self_redirect_links = (null_self_redirect_links / total_links) * 100
             print(f"Percentage of hyperlinks containing empty value, self-redirect value, or abnormal value: {pct_null_self_redirect_links:.2f}%")
             result = f"{pct_null_self_redirect_links:.2f}"
         else:
             print("No hyperlinks found in HTML")
-            result = "0"
+            result = 0
         email_features.append(result)
         # Extract FrequentDomainNameMismatch
         links = [link.get("href") for link in temp.find_all("a")]
@@ -324,99 +323,99 @@ def transform_email_to_features(preprocessed_email_content):
         domain_counts = Counter(domains)
         most_frequent_domain = domain_counts.most_common(1)[0][0]
         if most_frequent_domain != url_domain:
-            result = "1" 
+            result = 1 
             print("Frequent domain name mismatch found")
         else:
-            result = "0" 
+            result = 0 
             print("Frequent domain name mismatch not found")
         email_features.append(result)
         # Extract FakeLinkInStatusBar
         if "onMouseOver" in html_content:
-            result = "1" 
+            result = 1 
             print("Fake link in status bar found")
         else:
-            result = "0" 
+            result = 0 
             print("Fake link in status bar not found")
         email_features.append(result)
         # Extract RightClickDisabled
         right_click_pattern = re.compile(r'document\.oncontextmenu\s*=\s*function\s*\(\s*\)\s*{\s*return\s+false;\s*}')
         right_click_disabled = bool(right_click_pattern.search(html_content))
         if right_click_disabled is True:
-            result = "1"
+            result = 1
             print("Right_click_disabled: Yes")
         else:
-            result = "0"
+            result = 0
             print("Right_click_disabled: No")
         email_features.append(result)
         # Extract PopUpWindow
         if "window.open" in html_content:
-            result = "1"
+            result = 1
             print("PopUpWindow: Yes")
         else:
-            result = "0"
+            result = 0
             print("PopUpWindow: No")
         email_features.append(result)
         # Extract SubmitInfoToEmail
         mailto_links = temp.find_all("a", href=lambda href: href and href.startswith("mailto:"))
         if mailto_links:
-            result = "1"
+            result = 1
             print("SubmitInfoToEmail: Yes")
         else:
-            result = "0"
+            result = 0
             print("SubmitInfoToEmail: No")
         email_features.append(result)
         # Extract IframeOrFrame
         iframes = temp.find_all('iframe')
         frames = temp.find_all('frame')
         if iframes or frames:
-            result = "1"
+            result = 1
             print("Iframe or frame found")
         else:
-            result = "0"
+            result = 0
             print("Iframe or frame not found")
         email_features.append(result)
         # Extract MissingTitle
         title = temp.find('title')
         if title and title.string:
-            result = "1"
+            result = 1
             print("Title found")
         else:
-            result = "0"
+            result = 0
             print("Title not found or empty")
         email_features.append(result)
         # Extract ImagesOnlyInForm
         forms = temp.find_all('form')
         for form in forms:
             if all([img.has_attr('src') for img in form.find_all('img')]) and not form.get_text().strip():
-                result = "1"
+                result = 1
                 print("Images only in form")
             else:
-                result = "0"
+                result = 0
                 print("Text found in form")
         email_features.append(result)
         # Extract SubdomainLevelRT
         subdomain_level = has_link.hostname.count('.')
         if subdomain_level == 1:
             print("Legitimate")
-            result = "1"
+            result = 1
         elif subdomain_level == 2:
             print("Suspicious")
-            result = "0"
+            result = 0
         elif subdomain_level > 2:
             print("Phishing")
-            result = "-1"
+            result = -1
         email_features.append(result)
         # Extract UrlLengthRT
         url_length = len(has_link)
         if url_length < 54:
             print("Legitimate")
-            result = "1"
+            result = 1
         elif url_length >= 54 and url_length <= 75:
             print("Suspicious")
-            result = "0"
+            result = 0
         else:
             print("Phishing")
-            result = "-1"
+            result = -1
         email_features.append(result)
         # Extract PctExtResourceUrlsRT
         try:
@@ -453,13 +452,13 @@ def transform_email_to_features(preprocessed_email_content):
         matches = pattern.findall(html_content)
         for match in matches:
             if "http" in match and "://" not in match[:10]:
-                result = "1"
+                result = 1
                 print("Has foreign domain")
             elif match.strip() == "about:blank" or not match.strip():
-                result = "1"
+                result = 1
                 print("Has about:blank, or empty string")
             else:
-                result = "0"
+                result = 0
                 print("Normal form action attribute")
         email_features.append(result)
         # Extract ExtMetaScriptLinkRT
@@ -490,21 +489,21 @@ def transform_email_to_features(preprocessed_email_content):
                     link_count += 1
         total_count = meta_count + script_count + link_count
         if total_count == 0:
-            result = "0"
+            result = 0
         else:
             meta_pct = meta_count / total_count
             script_pct = script_count / total_count
             link_pct = link_count / total_count
             if meta_pct >= 0.5:
-                result = "1"
+                result = 1
             elif script_pct >= 0.5:
-                result = "1"
+                result = 1
             elif link_pct >= 0.5:
-                result = "1"
+                result = 1
             elif link_pct >= 0.1:
-                result = "-1"
+                result = -1
             else:
-                result = "0"
+                result = 0
         email_features.append(result)
         # Extract PctExtNullSelfRedirectHyperlinksRT
         pattern = re.compile(r'<a.*?href="(.*?)".*?>')
@@ -521,16 +520,16 @@ def transform_email_to_features(preprocessed_email_content):
                 self_redirect_links += 1
         total_links = len(matches)
         if total_links == 0:
-            result = "0"
+            result = 0
         pct_null_links = null_links / total_links
         pct_external_links = external_links / total_links
         pct_self_redirect_links = self_redirect_links / total_links
         if pct_external_links > 0:
-            result = "1"
+            result = 1
         elif pct_null_links > 0:
-            result = "-1"
+            result = -1
         else:
-            result = "0"
+            result = 0
         email_features.append(result)
             # Extract CLASS_LABEL
             ### NO IDEA ####
