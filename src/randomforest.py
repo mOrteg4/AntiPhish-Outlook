@@ -354,6 +354,7 @@ def transform_email_to_features(preprocessed_email_content):
             result = "Phishing"
         email_features.append(result)
         # Extract UrlLengthRT
+        ############ TODO: fix to return -1,1,0 ############
         url_length = len(has_link)
         if url_length < 54:
             result = "Legitimate"
@@ -363,7 +364,7 @@ def transform_email_to_features(preprocessed_email_content):
             result = "Phishing"
         email_features.append(result)
         # Extract PctExtResourceUrlsRT
-        '''UNSURE ABOUT THIS'''
+        ############ TODO: fix to return -1,1,0 ############
         total_urls = 0
         external_urls = 0
         for tag in temp.find_all():
@@ -379,6 +380,7 @@ def transform_email_to_features(preprocessed_email_content):
             pct_external_urls = 0
         email_features.append(pct_external_urls)
         # Extract AbnormalExtFormActionR
+        ############ TODO: fix to return -1,1,0 ############
         pattern = re.compile(r'<form.*?\saction=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL)
         matches = pattern.findall(html_content)
         for match in matches:
@@ -393,6 +395,7 @@ def transform_email_to_features(preprocessed_email_content):
                 print("Normal form action attribute")
         email_features.append(result)
         # Extract ExtMetaScriptLinkRT
+        ############ TODO: fix to return -1,1,0 ############
         pattern = re.compile(r'(?:meta|script|link).*?\s(?:href|src)=["\'](http.*?)[&"\']', re.IGNORECASE | re.DOTALL)
         matches = pattern.findall(html_content)
         meta_count = 0
@@ -413,6 +416,7 @@ def transform_email_to_features(preprocessed_email_content):
             link_pct = link_count / total_count
         email_features.append(meta_pct, script_pct, link_pct)
         # Extract PctExtNullSelfRedirectHyperlinksRT
+        ############ TODO: fix to return -1,1,0 ############
         total_links = 0
         ext_links = 0
         null_links = 0
