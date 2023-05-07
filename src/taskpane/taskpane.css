@@ -124,3 +124,43 @@
 .dark-mode * {
   color: #ffffff;
 }
+
+#moon-toggle {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#moon-toggle .moon,
+#moon-toggle .sun {
+  display: none;
+}
+
+#moon-toggle.dark-mode .moon {
+  display: none;
+}
+
+#moon-toggle.dark-mode .sun {
+  display: inline-block;
+}
+
+#moon-toggle:not(.dark-mode) .sun {
+  display: none;
+}
+
+#moon-toggle:not(.dark-mode) .moon {
+  display: inline-block;
+}
+
+#moon-toggle .moon {
+  margin-right: 0.5rem;
+}
+
+#moon-toggle .sun {
+  margin-left: 0.5rem;
+}

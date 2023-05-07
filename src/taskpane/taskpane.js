@@ -10,7 +10,7 @@ Office.onReady((info) => {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
-    detectDarkMode();
+    // detectDarkMode();
   }
 })
 
@@ -86,18 +86,31 @@ export async function run() {
   });
 }
 
-function detectDarkMode() {
-  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+// function detectDarkMode() {
+//   const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-  function setDarkModeClass() {
-      if (darkModeMediaQuery.matches) {
-          document.documentElement.classList.add('dark-mode');
-      } else {
-          document.documentElement.classList.remove('dark-mode');
-      }
-  }
+//   function setDarkModeClass() {
+//       if (darkModeMediaQuery.matches) {
+//           document.documentElement.classList.add('dark-mode');
+//       } else {
+//           document.documentElement.classList.remove('dark-mode');
+//       }
+//   }
   
-  setDarkModeClass();
+//   setDarkModeClass();
 
-  darkModeMediaQuery.addEventListener('change', setDarkModeClass);
-}
+//   darkModeMediaQuery.addEventListener('change', setDarkModeClass);
+// }
+
+const moonToggle = document.getElementById('moon-toggle');
+const body = document.body;
+
+moonToggle.addEventListener('click', function() {
+  if (body.classList.contains('dark-mode')) {
+    body.classList.remove('dark-mode');
+    moonToggle.innerHTML = '☾';
+  } else {
+    body.classList.add('dark-mode');
+    moonToggle.innerHTML = '☼';
+  }
+});
