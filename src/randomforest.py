@@ -9,6 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 from collections import Counter
 import ipaddress
+from sklearn.ensemble import RandomForestClassifier
+import statistics as stats
 
 def preprocess_email_content(email_content):
     print("Preprocessing email contents...")
@@ -531,14 +533,13 @@ def transform_email_to_features(preprocessed_email_content):
         else:
             result = 0
         email_features.append(result)
-            # Extract CLASS_LABEL
-            ### NO IDEA ####
 
-    #if there are no links, it's unlikely to be phishing
+    #if there are no links, it's unlikely to be phishing (NOTE: 1 is phishing, 0 is not. I'm not keeping in the Class Label)
     else:
-        email_features = {1,3,1,5,72,0,0,0,0,0,0,0,0,0,0,1,
-                          0,0,0,0,0,21,44,0,0,0,0,0,0.25,1,1,
-                          0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,-1,1,1}
+        email_features = {9820,2,1,2,45,0,0,0,0,0,0,0,0,0,0,
+                          1,0,0,0,0,0,22,16,0,0,0,0,0.0583941606,0.1666666667,0,
+                          0,0,0,0,0.0291970803,0,0,0,0,0,1,0,0,1,1,
+                          1,1,0,1}
     # Combine the extracted features into a numpy array
     email_features = np.array(email_features)
 
@@ -556,15 +557,35 @@ def check_phishing(email_data):
     # Transform the preprocessed email content into a format compatible with the random forest model
     email_features = transform_email_to_features(preprocessed_email_content)
 
+    # RANDOM FOREST ALGORITHM
+    # Load and preprocess the dataset
+    print("Reading csv file...")
+    features = pd.read_csv('src/Phishing_Legitimate_full.csv',sep=',')
+
+    # split the data into label/target and features
+    #aka y (THIS SHOULD BE OUR PHISHING/NOT PHISHING COLUMN)
+    labels = np.array(features['CLASS_LABEL'])
+    #aka x (This should be all of the features)
+    features = features.drop('CLASS_LABEL', axis=1)
+
+    #seperate the data into training and testing set
+    train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25, random_state=42)
+    # Train the RandomForest model classify
+    forest = RandomForestClassifier()
+    forest.fit(train_features, train_labels)
+
     # Predict if the email is a phishing attempt using the random forest model
     #possibly change this back to without the reshape
-    phishing_prediction = rf.predict(email_features.reshape(1, -1))
+    phishing_prediction = forest.predict(email_features.reshape(1, -1))
 
+    # phishing prediction should output a lost of the features with it's pediction
+    # of whether it's phishing or not
+    # ex: [0 , 1, 0, 0, 0, 1, 0, 0, 0,..., 0]
     # Set a threshold for the prediction to classify it as phishing or not
-    print(phishing_prediction)
-    test = str(phishing_prediction)
+    average = stats.mean(phishing_prediction)
+    test = str(average)
     phishing_threshold = 0.5
-    if phishing_prediction > phishing_threshold:
+    if average > phishing_threshold:
         print("This email may be a phishing attempt. Prediction: " + test)
         return "This is a phishing attempt. Report this immediately.  Prediction: " + test
     else:
@@ -573,36 +594,3 @@ def check_phishing(email_data):
 
 
 
-# Load and preprocess the dataset
-print("Reading csv file...")
-features = pd.read_csv('src/Phishing_Legitimate_full.csv')
-features = pd.get_dummies(features)
-
-print("Settings labels & features...")
-labels = np.array(features['id'])
-features = features.drop('id', axis=1)
-feature_list = list(features.columns)
-features = np.array(features)
-
-#seperate the data into training and testing set
-print("Seperating the data into training and testing set...")
-train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25, random_state=42)
-# Train the RandomForest model
-print("Training the RandomForest model...")
-rf = RandomForestRegressor(n_estimators=1000, random_state=42)
-rf.fit(train_features, train_labels)
-
-# Everything under here is to help us fix the model, so I commented it out since we dont need it anymore
-# Visualize the RandomForest 
-#tree = rf.estimators_[5]
-#export_graphviz(tree, out_file='tree.dot', feature_names=feature_list, rounded=True, precision=1)
-#(graph,) = pydot.graph_from_dot_file('tree.dot')
-#graph.write_png('tree.png')
-
-# Limit depth of tree to 3 levels
-#rf_small = RandomForestRegressor(n_estimators=10, max_depth=3)
-#rf_small.fit(train_features, train_labels)
-#tree_small = rf_small.estimators_[5]
-#export_graphviz(tree_small, out_file='small_tree.dot', feature_names=feature_list, rounded=True, precision=1)
-#(graph,) = pydot.graph_from_dot_file('small_tree.dot')
-#graph.write_png('small_tree.png')
