@@ -24,7 +24,9 @@ def transform_email_to_features(preprocessed_email_content):
     multiple_links = []
 
     #check if there are links
-    has_link = re.findall(r'\<.*?\>', preprocess_email_content)
+    # has_link = re.findall(r'\<.*?\>', preprocess_email_content)
+    url_pattern = re.compile(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+')
+    has_link = url_pattern.findall(preprocessed_email_content)
     # GET request to URL
     response = requests.get(has_link)
     # pasrse HTML content
@@ -204,23 +206,26 @@ def transform_email_to_features(preprocessed_email_content):
             #return _compile(pattern, flags).findall(string)
             #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             #TypeError: expected string or bytes-like object, got 'function'
-            total_links = 0
-            external_links = 0
-            for link in temp.find_all('a'):
-                href = link.get('href')
-                if href and (href.startswith('http') or href.startswith('//')):
-                    domain = tldextract.extract(href).domain
-                    if domain != tldextract.extract(has_link[i]).domain:
-                        external_links += 1
-                    total_links += 1
-            if total_links > 0:
-                pct_external_links = (external_links / total_links) * 100
-                print(f"Percentage of external hyperlinks: {pct_external_links:.2f}")
-                result = format(pct_external_links, '.2f')[1:]
-            else:
-                print("No hyperlinks found in HTML")
-                result = 0
-            email_features.append(result)
+            if has_link:
+                for link in has_link:
+                    response = requests.get(link.decode())
+                    total_links = 0
+                    external_links = 0
+                    for link in temp.find_all('a'):
+                        href = link.get('href')
+                        if href and (href.startswith('http') or href.startswith('//')):
+                            domain = tldextract.extract(href).domain
+                            if domain != tldextract.extract(link).domain:
+                                external_links += 1
+                            total_links += 1
+                    if total_links > 0:
+                        pct_external_links = (external_links / total_links) * 100
+                        print(f"Percentage of external hyperlinks: {pct_external_links:.2f}")
+                        result = format(pct_external_links, '.2f')[1:]
+                    else:
+                        print("No hyperlinks found in HTML")
+                        result = 0
+                    email_features.append(result)
             # Extract PctExtResourceUrls
             total_resources = 0
             external_resources = 0
