@@ -34,7 +34,8 @@ def transform_email_to_features(preprocessed_email_content):
     if len(has_link) != 0:
         for i in range(0, len(has_link)):
             #expecting multiple links in the email
-            multiple_links.append(email_features)
+            if len(email_features) != 0:
+                multiple_links.append(email_features)
             email_features.clear()
             # Extract ID
             email_features.append(re.findall('\d+',has_link[i]))
@@ -199,6 +200,10 @@ def transform_email_to_features(preprocessed_email_content):
                 print("Brand name not embedded")
             email_features.append(result)
             # Extract PctExtHyperlinks (Counts the percentage of external hyperlinks in webpage HTML source code)
+            #TODO: line 216, in findall
+            #return _compile(pattern, flags).findall(string)
+            #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            #TypeError: expected string or bytes-like object, got 'function'
             total_links = 0
             external_links = 0
             for link in temp.find_all('a'):
