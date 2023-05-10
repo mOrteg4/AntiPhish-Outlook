@@ -27,11 +27,16 @@ def transform_email_to_features(preprocessed_content):
     #check if there are links
     # has_link = re.findall(r'\<.*?\>', preprocess_email_content)
     url_pattern = re.compile(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+')
-    has_link = re.search(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', preprocessed_content).group(0)
+    has_link = None
+    match = re.search(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', preprocessed_content)
+    if match:
+        has_link = match.group(0)
+    else:
+        has_link = None
     has_link_group_type = url_pattern.findall(preprocessed_content)
 
     #if there are links, get data to check if phishing (im assuming theres one link for now)
-    if len(has_link_group_type) != 0:
+    if match and (len(has_link_group_type) != 0):
         for i in range(0, len(has_link_group_type)):
             # GET request to URL
             response = requests.get(has_link_group_type[i])
