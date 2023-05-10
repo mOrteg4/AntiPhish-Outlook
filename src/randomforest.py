@@ -36,6 +36,7 @@ def transform_email_to_features(preprocessed_content):
     has_link_group_type = url_pattern.findall(preprocessed_content)
 
     #if there are links, get data to check if phishing (im assuming theres one link for now)
+    print("This is the length of has_link_group_type" + str(len(has_link_group_type)))
     if match and (len(has_link_group_type) != 0):
         for i in range(0, len(has_link_group_type)):
             # GET request to URL
@@ -640,11 +641,11 @@ def check_phishing(email_data):
     test = str(average)
     phishing_threshold = 0.5
     if average > phishing_threshold:
+        print("This email seems legitimate. Prediction: " + test)
+        return "This email appears to be authentic and trustworthy. Prediction: " + test
+    else:
         print("This email may be a phishing attempt. Prediction: " + test)
         return "This is a phishing attempt. Report this immediately.  Prediction: " + test
-    else:
-        print("This email seems legitimate. Prediction: " + test)
-        return "This is a legitimate. Prediction: " + test
 
 
 

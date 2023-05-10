@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 from flask_cors import CORS
 print("Importing randomforest into flask...")
+
 import randomforest
 print("Randomforest imported.")
 
@@ -16,7 +17,12 @@ def checkemail():
         print("Ready to check.")
         return "Ready to check"
     print("Getting phishing data...")
-    return randomforest.check_phishing(received_email_data)
+    try:
+        result = randomforest.check_phishing(received_email_data)
+    except Exception as e:
+        print(f"Found missing data: {e}")
+        return "This could be a phishing email. Please be cautious."
+    return result
 
 
 @app.route('/receive_email', methods=['POST'])
