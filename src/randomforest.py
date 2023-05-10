@@ -88,6 +88,7 @@ def transform_email_to_features(preprocessed_content):
             # Extract NumUnderscore from preprocessed_email_content
             num_underscore = has_link[i].count("_")
             email_features.append(num_underscore)
+            print(email_features)
             # Extract NumPercent from preprocessed_email_content
             num_percent = has_link[i].count("%")
             email_features.append(num_percent)
@@ -159,6 +160,7 @@ def transform_email_to_features(preprocessed_content):
                 print("The TLD or ccTLD is not used in the path.")
                 result = 0
             email_features.append(result)
+            print(email_features)
             # Extract HttpsInHostname
             parsed_url = urlparse(has_link[i])
             if parsed_url:
@@ -280,6 +282,11 @@ def transform_email_to_features(preprocessed_content):
                     else:
                         print("External favicon not found")
                         email_features.append(0)
+                else:
+                    email_features.append(0)
+            if len(temp.find_all('link', rel='icon')) == 0:
+                email_features.append(0)
+            print(email_features)
             # Extract InsecureForms
             for form in temp.find_all('form'):
                 action = form.get('action')
@@ -291,6 +298,10 @@ def transform_email_to_features(preprocessed_content):
                     else:
                         print("Insecure form action not found")
                         email_features.append(0)
+                else:
+                    email_features.append(0)
+            if len(temp.find_all('form')) == 0:
+                email_features.append(0)
             # Extract RelativeFormAction
             for form in temp.find_all('form'):
                 action = form.get('action')
@@ -302,6 +313,10 @@ def transform_email_to_features(preprocessed_content):
                     else:
                         print("Relative form action not found")
                         email_features.append(0)
+                else:
+                    email_features.append(0)
+            if len(temp.find_all('form')) == 0:
+                email_features.append(0)
             # Extract ExtFormAction
             for form in temp.find_all('form'):
                 action = form.get('action')
@@ -313,21 +328,26 @@ def transform_email_to_features(preprocessed_content):
                     else:
                         print("External form action not found")
                         email_features.append(0)
-                        # Extract AbnormalFormAction
-                        form_action = "about:blank"
-                        if not form_action:
-                            print("Empty form action")
-                            result = 1
-                        elif re.search(r"^javascript:true$", form_action):
-                            print("Form action contains javascript:true")
-                            result = 1
-                        elif re.search(r"^(#|about:blank)$", form_action):
-                            print("Form action contains # or about:blank")
-                            result = 1
-                        else:
-                            print("Normal form action")
-                            result = 0
-                        email_features.append(result)
+                else:
+                    email_features.append(0)
+            if len(temp.find_all('form')) == 0:
+                email_features.append(0)
+            print(email_features)
+            # Extract AbnormalFormAction
+            form_action = "about:blank"
+            if not form_action:
+                print("Empty form action")
+                result = 1
+            elif re.search(r"^javascript:true$", form_action):
+                print("Form action contains javascript:true")
+                result = 1
+            elif re.search(r"^(#|about:blank)$", form_action):
+                print("Form action contains # or about:blank")
+                result = 1
+            else:
+                print("Normal form action")
+                result = 0
+            email_features.append(result)
             # Extract PctNullSelfRedirectHyperlinks
             total_links = 0
             null_self_redirect_links = 0
@@ -393,6 +413,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("SubmitInfoToEmail: No")
             email_features.append(result)
+            print(email_features)
             # Extract IframeOrFrame
             iframes = temp.find_all('iframe')
             frames = temp.find_all('frame')
