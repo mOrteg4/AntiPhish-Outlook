@@ -1,7 +1,7 @@
 rem This batch file installs dependencies and starts the server
 rem Install Python dependencies
 cd /d %~dp0
-rem pip install -r "%~dp0requirements.txt"
+pip install -r "%~dp0requirements.txt"
 
 rem Allow network access for WebView control
 CheckNetIsolation LoopbackExempt -a -n="microsoft.win32webviewhost_cw5n1h2txyewy" 
