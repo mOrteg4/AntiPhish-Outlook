@@ -515,13 +515,24 @@ def transform_email_to_features(preprocessed_content):
                 else:
                     result = 0
                     print("Normal form action attribute")
+
+
+            #Possible error around here
             email_features.append(result)
+            
+            print("Testing 0")
+            
+            
             # Extract ExtMetaScriptLinkRT
             pattern = re.compile(r'(?:meta|script|link).*?\s(?:href|src)=["\'](http.*?)[&"\']', re.IGNORECASE | re.DOTALL)
             matches = pattern.findall(html_content)
             meta_count = 0
             script_count = 0
             link_count = 0
+            
+            
+            print("Testing 1")
+            
             for match in matches:
                 if "http" not in match:
                     continue
@@ -542,6 +553,8 @@ def transform_email_to_features(preprocessed_content):
                         script_count += 1
                     elif "link" in match:
                         link_count += 1
+            
+            print("Testing 2")
             total_count = meta_count + script_count + link_count
             if total_count == 0:
                 result = 0
@@ -559,6 +572,8 @@ def transform_email_to_features(preprocessed_content):
                     result = -1
                 else:
                     result = 0
+            
+            print("testing 3")
             email_features.append(result)
             # Extract PctExtNullSelfRedirectHyperlinksRT
             pattern = re.compile(r'<a.*?href="(.*?)".*?>')
@@ -566,6 +581,8 @@ def transform_email_to_features(preprocessed_content):
             external_links = 0
             null_links = 0
             self_redirect_links = 0
+            
+            print("testing 4")
             for match in matches:
                 if match == "" or match.startswith("#") or match.startswith("javascript::void(0)"):
                     null_links += 1
@@ -604,14 +621,16 @@ def check_phishing(email_data):
     
     # Get the currently open email in Outlook
     #email_content = email_data
-
+    print("Part 0")
     # Preprocess the email content
     preprocessed_email_content = preprocess_email_content(email_data)
     print(preprocessed_email_content)
 
+    print("Part 1")
+
     # Transform the preprocessed email content into a format compatible with the random forest model
     email_features = transform_email_to_features(preprocessed_email_content)
-
+    print("Part 2")
     # RANDOM FOREST ALGORITHM
     # Load and preprocess the dataset
     print("Reading csv file...")
@@ -623,6 +642,8 @@ def check_phishing(email_data):
     #aka x (This should be all of the features)
     features = features.drop('CLASS_LABEL', axis=1)
 
+
+    print("Part 3")
     #seperate the data into training and testing set
     train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25, random_state=42)
     # Train the RandomForest model classify
@@ -649,3 +670,6 @@ def check_phishing(email_data):
 
 
 
+def textOutput():
+    print("In randomforest.py!")
+    return "In here!"

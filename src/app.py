@@ -19,6 +19,7 @@ def checkemail():
     print("Getting phishing data...")
     try:
         result = randomforest.check_phishing(received_email_data)
+        #result = randomforest.textOutput()
     except Exception as e:
         print(f"Found missing data: {e}")
         return "This could be a phishing email. Please be cautious."
