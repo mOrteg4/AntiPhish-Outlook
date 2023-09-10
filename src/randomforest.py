@@ -591,18 +591,23 @@ def transform_email_to_features(preprocessed_content):
                 elif match == has_link[i] or match == has_link[i] +"/" or match == has_link[i] +"#":
                     self_redirect_links += 1
             total_links = len(matches)
+            print("testing 5")
             if total_links == 0:
                 result = 0
+            print("testing 6")
             pct_null_links = null_links / total_links
             pct_external_links = external_links / total_links
             pct_self_redirect_links = self_redirect_links / total_links
+            print("testing 7")
             if pct_external_links > 0:
                 result = 1
             elif pct_null_links > 0:
                 result = -1
             else:
                 result = 0
+            print("testing 8")
             email_features.append(result)
+            print("testing 9")
 
     #if there are no links, it's unlikely to be phishing (NOTE: 1 is phishing, 0 is not. I'm not keeping in the Class Label)
     # NOT CLASS_LABEL BECAUSE THAT IS WHAT WE ARE PREDICTING
@@ -612,16 +617,21 @@ def transform_email_to_features(preprocessed_content):
                           0,0,0,0,0.0291970803,0,0,0,0,0,1,0,0,1,1,
                           1,1,0,1}
     # Combine the extracted features into a numpy array
+    
     np.array(email_features)
+    print("testing 10")
     print(email_features)
 
     return email_features
 
 def check_phishing(email_data):
-    print("In here")
-    has_no_links = has_zero_links_and_attachments(email_data)
-    print(has_no_links)
-    
+    email_content = email_data.get('email_contents', '')
+    if has_zero_links_and_attachments(email_content):
+        print("This email has NO links and appears to be safe.")
+        return "This email has zero links and zero attachments. It appears to be safe."
+    else:
+        print("This email contains links. Checking for phishing.")
+        #return "This email has links and/ or attachments."
     # Get the currently open email in Outlook
     #email_content = email_data
     print("Part 0")

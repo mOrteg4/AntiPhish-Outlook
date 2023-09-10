@@ -32,9 +32,26 @@ def receive_email():
     global received_email_data
     email_data = request.json
     print("Email data received...")
+    #print(email_data)
     received_email_data = email_data
-    checkemail()
+
+        # Extract the email content from the dictionary
+    email_content = received_email_data.get('email_contents', '')  # Replace 'email_contents' with the actual key
+
     return Response("Success", content_type="text/plain")
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+"""
+    # Check if the email has zero links and zero attachments
+    if randomforest.has_zero_links_and_attachments(email_content):
+        print("This email has NO links and appears to be safe.")
+        return "This email has zero links and zero attachments. It appears to be safe."
+    else:
+        print("This email contains links. Checking for phishing.")
+        return "This email has links and/ or attachments."
+        #checkemail()
+"""
