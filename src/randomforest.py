@@ -618,6 +618,9 @@ def transform_email_to_features(preprocessed_content):
     return email_features
 
 def check_phishing(email_data):
+    print("In here")
+    has_no_links = has_zero_links_and_attachments(email_data)
+    print(has_no_links)
     
     # Get the currently open email in Outlook
     #email_content = email_data
@@ -670,6 +673,21 @@ def check_phishing(email_data):
 
 
 
-def textOutput():
-    print("In randomforest.py!")
-    return "In here!"
+
+
+
+
+def has_zero_links_and_attachments(email_content):
+    # Check for links
+    link_pattern = re.compile(r'https?://\S+')
+    links = re.findall(link_pattern, email_content)
+
+    # Check for attachments
+    # You may need to define your own logic to detect attachments based on your email format
+    # For example, you can look for keywords like "attachment" or "file"
+    attachment_keywords = ["attachment", "file"]
+    has_attachments = any(keyword in email_content.lower() for keyword in attachment_keywords)
+
+    # Return True if there are zero links and zero attachments, otherwise False
+    print(len(links), not has_attachments)
+    return len(links) == 0 and not has_attachments
