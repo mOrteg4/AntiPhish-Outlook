@@ -20,6 +20,8 @@ def preprocess_email_content(email_content):
     return preprocessed_content
 
 def transform_email_to_features(preprocessed_content):
+    print("In function transform_email_to_features")
+
     # Initialize a list to store the extracted features
     email_features = []
     multiple_links = []
@@ -39,6 +41,10 @@ def transform_email_to_features(preprocessed_content):
     print("This is the length of has_link_group_type" + str(len(has_link_group_type)))
     if match and (len(has_link_group_type) != 0):
         for i in range(0, len(has_link_group_type)):
+            print(i)
+            #for x in range(len(has_link_group_type)):
+                
+             #   print(has_link_group_type[x])
             # GET request to URL
             response = requests.get(has_link_group_type[i])
             # pasrse HTML content
@@ -49,7 +55,9 @@ def transform_email_to_features(preprocessed_content):
                 multiple_links.append(email_features)
             email_features.clear()
             # Extract ID
+            print("extracting id")
             id = re.findall('\d+',has_link_group_type[i])[0]
+            print(has_link_group_type)
             email_features.append(int(id))
             # Extract NumDots from preprocessed_email_content
             num_dots = has_link[i].count(".")
