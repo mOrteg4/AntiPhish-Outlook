@@ -38,51 +38,92 @@ def transform_email_to_features(preprocessed_content):
     has_link_group_type = url_pattern.findall(preprocessed_content)
 
     #if there are links, get data to check if phishing (im assuming theres one link for now)
-    print("This is the length of has_link_group_type" + str(len(has_link_group_type)))
+    print("This is the length of has_link_group_type: " + str(len(has_link_group_type)))
+    #get a list of all of the links in the email
     if match and (len(has_link_group_type) != 0):
+        #check each website for sub-categories (ex: id, subdomain, etc.)
         for i in range(0, len(has_link_group_type)):
-            print(i)
-            #for x in range(len(has_link_group_type)):
-                
-             #   print(has_link_group_type[x])
+            #print the number we are on
+            print("Number for i: ", i)
+            #print the link we are curently on
+            print("Current link: ", has_link_group_type[i])
             # GET request to URL
             response = requests.get(has_link_group_type[i])
             # pasrse HTML content
             temp = BeautifulSoup(response.content, 'html.parser')
             html_content = response.text
+
             #expecting multiple links in the email
             if len(email_features) != 0:
                 multiple_links.append(email_features)
             email_features.clear()
+
+            """
+            URL contains 10 parts, which are what we are looking at
+            EXAMPLE: https://www.hello.this.is.an.example.link.com/home/parts-url?/134/
+            hostname = www.hello.this.is.an.example.link.com
+            scheme = https://
+            subdomains = www, hello, this, is, an, example
+            domain: link.com
+            second-level domain: link
+            top-level domain: .com (other examples, .edu, .org, and .net)
+            subdictionary: home
+            path: parts-url, 
+            query: question mark symbol ?, before a query is the path & after are parameters
+            ampersand: & symbol, found btw each parameter
+            id = 134, random number that the website generated for the link
+            """
             # Extract ID
             print("extracting id")
-            id = re.findall('\d+',has_link_group_type[i])[0]
             print(has_link_group_type)
+            try:
+                id = re.findall('/(\d+)\/|ID=(\d+/g)',has_link_group_type[i])[0]
+             # id doesnt-'t exist    
+            except:
+                id = 0
+            #print(has_link_group_type)
             email_features.append(int(id))
+            print(email_features)
+            
             # Extract NumDots from preprocessed_email_content
             num_dots = has_link[i].count(".")
             email_features.append(num_dots) 
-            # Extract SubdomainLevel
+            print("Amount of Dots in the link: ", num_dots)
+
+            # Extract SubdomainLevel, number is btw 0 - 126
             ext = tldextract.extract(has_link[i]) #https://pypi.org/project/tldextract/
             sub = ext.subdomain
             sub.split('.')
             email_features.append(len(sub))
+            #TODO: output h instad of sub
+
+            print("Sub Domain: ", sub)
+
             # Extract PathLevel
             parsed_url = urlparse(has_link)
             path = parsed_url.path
             path_segments = path.split('/')
             path_level = len(path_segments) - 1
             email_features.append(path_level)
+            print("Pathlevel: ", path_level)
+
             # Extract UrlLength
             email_features.append(len(has_link[i]))
+            print("Url: ", has_link[i])
+            print("Url Length: ", len(has_link[i]))
+
             # Extract NumDash from preprocessed_email_content
             num_dash = has_link[i].count("-")
             email_features.append(num_dash)
+            print("Amount of Dashes: ", num_dash)
+
             # Extract NumDashInHostname
             ext = tldextract.extract(has_link[i])
             domain = ext.domain
             num_dash_in_domain = domain.count("-")
             email_features.append(num_dash_in_domain)
+            print("Hostname: ", domain)
+            print("Amount of Dashes in Host Domain: ", num_dash_in_domain)
             # Extract AtSymbol
             if "@" in has_link[i]:
                 print("At symbol found in URL")
@@ -99,22 +140,33 @@ def transform_email_to_features(preprocessed_content):
                 print("Tilde symbol not found in URL")
                 result = 0
             email_features.append(result)
+
             # Extract NumUnderscore from preprocessed_email_content
             num_underscore = has_link[i].count("_")
             email_features.append(num_underscore)
-            print(email_features)
+            print("Amount of Underscore in Url: ", num_underscore)
+            print("Features for Dataset so Far: ", email_features)
+
             # Extract NumPercent from preprocessed_email_content
             num_percent = has_link[i].count("%")
             email_features.append(num_percent)
+            print("Amount of Percent Symbol Found in Url: ", num_percent)
+
             #Extract NumQueryComponents
             num_query_components = has_link[i].count("?")
             email_features.append(num_query_components)
+            print("Amount of Queries: ", num_query_components)
+
             # Extract NumAmpersand from preprocessed_email_content
             num_ampersand = has_link[i].count("&")
             email_features.append(num_ampersand)
+            print("Amount of Ampersand: ", num_ampersand)
+
             # Extract NumHash from preprocessed_email_content
             num_hash = has_link[i].count("#")
             email_features.append(num_hash)
+            print("Amount of Hash: ", num_hash)
+            
             # Extract NumNumericChars from preprocessed_email_content
             num_numeric_chars = sum(c.isdigit() for c in has_link[i])
             email_features.append(num_numeric_chars)
