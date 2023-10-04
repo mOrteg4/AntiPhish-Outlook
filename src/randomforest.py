@@ -86,21 +86,19 @@ def transform_email_to_features(preprocessed_content):
             print(email_features)
             
             # Extract NumDots from preprocessed_email_content
-            num_dots = has_link[i].count(".")
+            num_dots = has_link_group_type[i].count(".")
             email_features.append(num_dots) 
             print("Amount of Dots in the link: ", num_dots)
 
             # Extract SubdomainLevel, number is btw 0 - 126
-            ext = tldextract.extract(has_link[i]) #https://pypi.org/project/tldextract/
+            ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
             sub = ext.subdomain
             sub.split('.')
             email_features.append(len(sub))
-            #TODO: output h instad of sub
-
             print("Sub Domain: ", sub)
 
             # Extract PathLevel
-            parsed_url = urlparse(has_link)
+            parsed_url = urlparse(has_link_group_type[i])
             path = parsed_url.path
             path_segments = path.split('/')
             path_level = len(path_segments) - 1
@@ -113,28 +111,28 @@ def transform_email_to_features(preprocessed_content):
             print("Url Length: ", len(has_link_group_type[i]))
 
             # Extract NumDash from preprocessed_email_content
-            num_dash = has_link[i].count("-")
+            num_dash = has_link_group_type[i].count("-")
             email_features.append(num_dash)
             print("Amount of Dashes: ", num_dash)
 
-            #TODO: fix findall for hostname
             # Extract NumDashInHostname
-            ext = tldextract.extract(has_link[i])
-            domain = re.findall('//(\d+)\.com',has_link_group_type[i])[0]
-            num_dash_in_domain = domain.count("-")
+            hostname = re.findall(r'https?://([^/]+)', has_link_group_type[i])[0]
+            num_dash_in_domain = hostname.count("-")
             email_features.append(num_dash_in_domain)
-            print("Hostname: ", domain)
+            print("Hostname: ", hostname)
             print("Amount of Dashes in Host Domain: ", num_dash_in_domain)
+            
             # Extract AtSymbol
-            if "@" in has_link[i]:
+            if "@" in has_link_group_type[i]:
                 print("At symbol found in URL")
                 result = 1
             else:
                 print("At symbol not found in URL")
                 result = 0
             email_features.append(result)
+            
             # Extract TildeSymbol
-            if "~" in has_link[i]:
+            if "~" in has_link_group_type[i]:
                 print("Tilde symbol found in URL")
                 result = 1
             else:
@@ -143,39 +141,39 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract NumUnderscore from preprocessed_email_content
-            num_underscore = has_link[i].count("_")
+            num_underscore = has_link_group_type[i].count("_")
             email_features.append(num_underscore)
             print("Amount of Underscore in Url: ", num_underscore)
             print("Features for Dataset so Far: ", email_features)
 
             # Extract NumPercent from preprocessed_email_content
-            num_percent = has_link[i].count("%")
+            num_percent = has_link_group_type[i].count("%")
             email_features.append(num_percent)
             print("Amount of Percent Symbol Found in Url: ", num_percent)
 
             #Extract NumQueryComponents
-            num_query_components = has_link[i].count("?")
+            num_query_components = has_link_group_type[i].count("?")
             email_features.append(num_query_components)
             print("Amount of Queries: ", num_query_components)
 
             # Extract NumAmpersand from preprocessed_email_content
-            num_ampersand = has_link[i].count("&")
+            num_ampersand = has_link_group_type[i].count("&")
             email_features.append(num_ampersand)
             print("Amount of Ampersand: ", num_ampersand)
 
             # Extract NumHash from preprocessed_email_content
-            num_hash = has_link[i].count("#")
+            num_hash = has_link_group_type[i].count("#")
             email_features.append(num_hash)
             print("Amount of Hash: ", num_hash)
 
             # Extract NumNumericChars from preprocessed_email_content
-            num_numeric_chars = sum(c.isdigit() for c in has_link[i])
+            num_numeric_chars = sum(c.isdigit() for c in has_link_group_type[i])
             email_features.append(num_numeric_chars)
             print("Amount of Numeric Characters: ", num_numeric_chars)
 
             # Extract NoHttps
             pattern = r"^https"
-            match = re.search(pattern, has_link[i])
+            match = re.search(pattern, has_link_group_type[i])
             if match:
                 print("https found in URL")
                 result = 1
@@ -186,7 +184,7 @@ def transform_email_to_features(preprocessed_content):
 
             # Extract RandomString
             pattern = r"[a-z0-9]{8,}"
-            matches = re.findall(pattern, has_link[i])
+            matches = re.findall(pattern, has_link_group_type[i])
             if matches:
                 result = 1
                 print("Random string found")
@@ -212,7 +210,7 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract DomainInSubdomains
-            subdomain, _, tld = tldextract.extract(has_link[i])
+            subdomain, _, tld = tldextract.extract(has_link_group_type[i])
             if tld in subdomain:
                 print("The TLD or ccTLD is used in the subdomain.")
                 result = 1
@@ -222,7 +220,7 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract DomainInPaths
-            path = urlparse(has_link[i]).path
+            path = urlparse(has_link_group_type[i]).path
             if '/' in path:
                 domain = path.split('/')[1]
                 tld = tldextract.extract(domain).suffix
@@ -237,7 +235,7 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract HttpsInHostname
-            parsed_url = urlparse(has_link[i])
+            parsed_url = urlparse(has_link_group_type[i])
             if parsed_url:
                 hostname = parsed_url.hostname
                 if hostname and re.search(r"https", hostname):
@@ -255,15 +253,16 @@ def transform_email_to_features(preprocessed_content):
             print("Features for Dataset so Far: ", email_features)
 
             # Extract HostnameLength
-            ext = tldextract.extract(has_link[i])
-            domain = ext.domain
-            email_features.append(len(domain))
-            print("Hostname: ", domain)
+            # ext = tldextract.extract(has_link_group_type[i])
+            # domain = ext.domain
+            hostname = re.findall(r'https?://([^/]+)', has_link_group_type[i])[0]
+            email_features.append(len(hostname))
+            print("Hostname: ", hostname)
             #our dataset so far
             print("Features for Dataset so Far: ", email_features)
 
             # Extract PathLength
-            path = urlparse(has_link[i])
+            path = urlparse(has_link_group_type[i])
             email_features.append(len(path))
             print("Path: ", path)
             #our dataset so far
@@ -278,7 +277,7 @@ def transform_email_to_features(preprocessed_content):
             print("Query List: ", queries)
             
             # Extract DoubleSlashInPath
-            parsed_url = urlparse(has_link[i])
+            parsed_url = urlparse(has_link_group_type[i])
             path = parsed_url.path
             if re.search(r"\/\/", path):
                 print("// exists in the path.")
@@ -290,19 +289,19 @@ def transform_email_to_features(preprocessed_content):
             
             # Extract NumSensitiveWords
             sensitive_words = ["secure", "account", "webscr", "login", "ebayisapi", "signin", "banking", "confirm"]
-            num_sensitive_words = sum([1 for word in sensitive_words if re.search(word, has_link[i], re.IGNORECASE)])
+            num_sensitive_words = sum([1 for word in sensitive_words if re.search(word, has_link_group_type[i], re.IGNORECASE)])
             email_features.append(num_sensitive_words)
             print("Amount of Senstive Words: ", num_sensitive_words)
 
+            #TODO: Fix "Found missing data: 'in <string>' requires string as left operand, not NoneType"
             # Extract EmbeddedBrandName
-            #TODO: Add Out of Range Exceptions
-            domain_names = [urlparse(link.get("href")).hostname for link in temp.find_all("a") if link.get("href")]
-            domain_name_counts = Counter(domain_names)
-            most_frequent_domain_name = domain_name_counts.most_common(1)[0][0]
-            parsed_url = urlparse(has_link[i])
+            parsed_url = urlparse(has_link_group_type[i])
             if parsed_url.hostname is not None:
                 subdomains = parsed_url.hostname.split(".")[:-2]
                 path = parsed_url.path
+                domain_names = [urlparse(link.get("href")).hostname for link in temp.find_all("a") if link.get("href")]
+                domain_name_counts = Counter(domain_names)
+                most_frequent_domain_name = domain_name_counts.most_common(1)[0][0]
                 if most_frequent_domain_name in subdomains or most_frequent_domain_name in path:
                     result = 1
                     print("Brand name embedded")
@@ -330,7 +329,6 @@ def transform_email_to_features(preprocessed_content):
                                 total_links += 1
                         except ValueError:
                             pass
-
                 if total_links > 0:
                     pct_external_links = external_links / total_links
                     print(f"Percentage of external hyperlinks: {round(pct_external_links, 2)}")
@@ -348,14 +346,14 @@ def transform_email_to_features(preprocessed_content):
                     href = tag['href']
                     if href.startswith('http') or href.startswith('//'):
                         domain = tldextract.extract(href).domain
-                        if domain != tldextract.extract(has_link[i]).domain:
+                        if domain != tldextract.extract(has_link_group_type[i]).domain:
                             external_resources += 1
                     total_resources += 1
                 if tag.has_attr('src'):
                     src = tag['src']
                     if src.startswith('http') or src.startswith('//'):
                         domain = tldextract.extract(src).domain
-                        if domain != tldextract.extract(has_link[i]).domain:
+                        if domain != tldextract.extract(has_link_group_type[i]).domain:
                             external_resources += 1
                     total_resources += 1
             if total_resources > 0:
@@ -372,7 +370,7 @@ def transform_email_to_features(preprocessed_content):
                 href = link.get('href')
                 if href:
                     domain = tldextract.extract(href).domain
-                    if domain != tldextract.extract(has_link[i]).domain:
+                    if domain != tldextract.extract(has_link_group_type[i]).domain:
                         print(f"External favicon found: {href}")
                         email_features.append(1)
                     else:
@@ -458,7 +456,7 @@ def transform_email_to_features(preprocessed_content):
                 href = link.get('href')
                 if href:
                     total_links += 1
-                    if href == '#' or href == has_link[i] or href.startswith('file://'):
+                    if href == '#' or href == has_link_group_type[i] or href.startswith('file://'):
                         null_self_redirect_links += 1
             if total_links > 0:
                 pct_null_self_redirect_links = null_self_redirect_links / total_links
@@ -471,7 +469,7 @@ def transform_email_to_features(preprocessed_content):
 
             # Extract FrequentDomainNameMismatch
             links = [link.get("href") for link in temp.find_all("a") if link.get("href")]
-            url_domain = tldextract.extract(has_link[i]).domain
+            url_domain = tldextract.extract(has_link_group_type[i]).domain
             domains = [tldextract.extract(link).domain for link in links]
             domain_counts = Counter(domains)
             most_frequent_domain = domain_counts.most_common(1)[0][0]
@@ -571,7 +569,7 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract UrlLengthRT
-            url_length = len(has_link[i])
+            url_length = len(has_link_group_type[i])
             if url_length < 54:
                 print("Legitimate")
                 result = 1
@@ -585,7 +583,7 @@ def transform_email_to_features(preprocessed_content):
 
             # Extract PctExtResourceUrlsRT
             try:
-                response = requests.get(has_link[i], timeout=5)
+                response = requests.get(has_link_group_type[i], timeout=5)
                 html = response.text
             except:
                 print("Failed to download HTML source code")
@@ -597,7 +595,7 @@ def transform_email_to_features(preprocessed_content):
                     url = tag.get('src') or tag.get('href')
                     if url and (url.startswith('http') or url.startswith('//')):
                         domain = tldextract.extract(url).domain
-                        if domain != tldextract.extract(has_link[i]).domain:
+                        if domain != tldextract.extract(has_link_group_type[i]).domain:
                             external_resource_urls += 1
                         total_resource_urls += 1
                 if total_resource_urls > 0:
@@ -651,7 +649,7 @@ def transform_email_to_features(preprocessed_content):
                     link_count += 1
                 elif match.startswith("file://"):
                     link_count += 1
-                elif tldextract.extract(match).domain != tldextract.extract(has_link[i]).domain:
+                elif tldextract.extract(match).domain != tldextract.extract(has_link_group_type[i]).domain:
                     link_count += 1
                 else:
                     if "meta" in match:
@@ -695,9 +693,9 @@ def transform_email_to_features(preprocessed_content):
             for match in matches:
                 if match == "" or match.startswith("#") or match.startswith("javascript::void(0)"):
                     null_links += 1
-                elif has_link[i] not in match:
+                elif has_link_group_type[i] not in match:
                     external_links += 1
-                elif match == has_link[i] or match == has_link[i] +"/" or match == has_link[i] +"#":
+                elif match == has_link_group_type[i] or match == has_link_group_type[i] +"/" or match == has_link_group_type[i] +"#":
                     self_redirect_links += 1
             total_links = len(matches)
             print("testing 5")
