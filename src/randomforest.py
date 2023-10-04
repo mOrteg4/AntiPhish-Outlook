@@ -108,18 +108,19 @@ def transform_email_to_features(preprocessed_content):
             print("Pathlevel: ", path_level)
 
             # Extract UrlLength
-            email_features.append(len(has_link[i]))
-            print("Url: ", has_link[i])
-            print("Url Length: ", len(has_link[i]))
+            email_features.append(len(has_link_group_type[i]))
+            print("Url: ", has_link_group_type[i])
+            print("Url Length: ", len(has_link_group_type[i]))
 
             # Extract NumDash from preprocessed_email_content
             num_dash = has_link[i].count("-")
             email_features.append(num_dash)
             print("Amount of Dashes: ", num_dash)
 
+            #TODO: fix findall for hostname
             # Extract NumDashInHostname
             ext = tldextract.extract(has_link[i])
-            domain = ext.domain
+            domain = re.findall('//(\d+)\.com',has_link_group_type[i])[0]
             num_dash_in_domain = domain.count("-")
             email_features.append(num_dash_in_domain)
             print("Hostname: ", domain)
