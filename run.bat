@@ -1,6 +1,3 @@
-@echo off
-(
-
 rem This batch file installs dependencies and starts the server
 rem Install Python dependencies
 cd /d %~dp0
@@ -12,12 +9,5 @@ CheckNetIsolation LoopbackExempt -a -n="microsoft.win32webviewhost_cw5n1h2txyewy
 rem Change to application directory by opening the folder and copy the path, then paste it here and remove the " "
 cd "%~dp0"
 
-
 rem Start the server
-
 npm run start
-
-rem running the server in a new window
-
-cmd /k
-) >> "%~dp0output.txt" 2>&1
