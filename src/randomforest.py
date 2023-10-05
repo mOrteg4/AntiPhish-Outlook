@@ -83,108 +83,113 @@ def transform_email_to_features(preprocessed_content):
                 id = 0
             email_features.append(int(id))
             print("ID:", id)
-            print(email_features)
+            print("Features for Dataset so Far: ", email_features)
             
             # Extract NumDots from preprocessed_email_content
             num_dots = has_link_group_type[i].count(".")
             email_features.append(num_dots) 
             print("Amount of Dots in the link: ", num_dots)
 
-            ####################################################################################
-            # COMMENTED OUT BELOW TO TEST EACH FUNCTION IF CORRECT/WRONG, above this is correct
-            ####################################################################################
-
+            #TODO: Check if this correct
             # # Extract SubdomainLevel, number is btw 0 - 126
             # ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
             # sub = ext.subdomain
             # sub.split('.')
             # email_features.append(len(sub))
             # print("Sub Domain: ", sub)
+            # print("Subdomain Level:", len(sub))
 
+            #TODO: REDO, incorrect
             # # Extract PathLevel
-            # parsed_url = urlparse(has_link_group_type[i])
-            # path = parsed_url.path
-            # path_segments = path.split('/')
-            # path_level = len(path_segments) - 1
+            # # parsed_url = urlparse(has_link_group_type[i])
+            # # path = parsed_url.path
+            # path_level = has_link_group_type[i].split('/')
+            # # path_level = len(path_segments) - 1
             # email_features.append(path_level)
             # print("Pathlevel: ", path_level)
 
-            # # Extract UrlLength
-            # email_features.append(len(has_link_group_type[i]))
-            # print("Url: ", has_link_group_type[i])
-            # print("Url Length: ", len(has_link_group_type[i]))
+            # Extract UrlLength
+            email_features.append(len(has_link_group_type[i]))
+            print("Url: ", has_link_group_type[i])
+            print("Url Length: ", len(has_link_group_type[i]))
 
-            # # Extract NumDash from preprocessed_email_content
-            # num_dash = has_link_group_type[i].count("-")
-            # email_features.append(num_dash)
-            # print("Amount of Dashes: ", num_dash)
+            # Extract NumDash from preprocessed_email_content
+            num_dash = has_link_group_type[i].count("-")
+            email_features.append(num_dash)
+            print("Amount of Dashes: ", num_dash)
 
-            # # Extract NumDashInHostname
-            # hostname = re.findall(r'https?://([^/]+)', has_link_group_type[i])[0]
-            # num_dash_in_domain = hostname.count("-")
-            # email_features.append(num_dash_in_domain)
-            # print("Hostname: ", hostname)
-            # print("Amount of Dashes in Host Domain: ", num_dash_in_domain)
+            # Extract NumDashInHostname
+            hostname = re.findall(r'https?://([^/]+)', has_link_group_type[i])[0]
+            num_dash_in_domain = hostname.count("-")
+            email_features.append(num_dash_in_domain)
+            print("Hostname: ", hostname)
+            print("Amount of Dashes in Host Domain: ", num_dash_in_domain)
             
-            # # Extract AtSymbol
-            # if "@" in has_link_group_type[i]:
-            #     print("At symbol found in URL")
-            #     result = 1
-            # else:
-            #     print("At symbol not found in URL")
-            #     result = 0
-            # email_features.append(result)
+            # Extract AtSymbol
+            if "@" in has_link_group_type[i]:
+                print("At symbol found in URL")
+                result = 1
+            else:
+                print("At symbol not found in URL")
+                result = 0
+            email_features.append(result)
             
-            # # Extract TildeSymbol
-            # if "~" in has_link_group_type[i]:
-            #     print("Tilde symbol found in URL")
-            #     result = 1
-            # else:
-            #     print("Tilde symbol not found in URL")
-            #     result = 0
-            # email_features.append(result)
+            # Extract TildeSymbol
+            if "~" in has_link_group_type[i]:
+                print("Tilde symbol found in URL")
+                result = 1
+            else:
+                print("Tilde symbol not found in URL")
+                result = 0
+            email_features.append(result)
 
-            # # Extract NumUnderscore from preprocessed_email_content
-            # num_underscore = has_link_group_type[i].count("_")
-            # email_features.append(num_underscore)
-            # print("Amount of Underscore in Url: ", num_underscore)
-            # print("Features for Dataset so Far: ", email_features)
+            # Extract NumUnderscore from preprocessed_email_content
+            num_underscore = has_link_group_type[i].count("_")
+            email_features.append(num_underscore)
+            print("Amount of Underscore in Url: ", num_underscore)
+            print("Features for Dataset so Far: ", email_features)
 
-            # # Extract NumPercent from preprocessed_email_content
-            # num_percent = has_link_group_type[i].count("%")
-            # email_features.append(num_percent)
-            # print("Amount of Percent Symbol Found in Url: ", num_percent)
+            # Extract NumPercent from preprocessed_email_content
+            num_percent = has_link_group_type[i].count("%")
+            email_features.append(num_percent)
+            print("Amount of Percent Symbol Found in Url: ", num_percent)
 
+            #TODO: Fix, starts with "?" and separated by "&" until the end of string, 
+            #       example of query of 2 components: https://example.com/page?parameter1=x&parameter2=y
             # #Extract NumQueryComponents
             # num_query_components = has_link_group_type[i].count("?")
             # email_features.append(num_query_components)
             # print("Amount of Queries: ", num_query_components)
 
-            # # Extract NumAmpersand from preprocessed_email_content
-            # num_ampersand = has_link_group_type[i].count("&")
-            # email_features.append(num_ampersand)
-            # print("Amount of Ampersand: ", num_ampersand)
+            # Extract NumAmpersand from preprocessed_email_content
+            num_ampersand = has_link_group_type[i].count("&")
+            email_features.append(num_ampersand)
+            print("Amount of Ampersand: ", num_ampersand)
 
-            # # Extract NumHash from preprocessed_email_content
-            # num_hash = has_link_group_type[i].count("#")
-            # email_features.append(num_hash)
-            # print("Amount of Hash: ", num_hash)
+            # Extract NumHash from preprocessed_email_content
+            num_hash = has_link_group_type[i].count("#")
+            email_features.append(num_hash)
+            print("Amount of Hash: ", num_hash)
 
+            #TODO: Check if corect
             # # Extract NumNumericChars from preprocessed_email_content
             # num_numeric_chars = sum(c.isdigit() for c in has_link_group_type[i])
             # email_features.append(num_numeric_chars)
             # print("Amount of Numeric Characters: ", num_numeric_chars)
 
-            # # Extract NoHttps
-            # pattern = r"^https"
-            # match = re.search(pattern, has_link_group_type[i])
-            # if match:
-            #     print("https found in URL")
-            #     result = 1
-            # else:
-            #     print("https not found in URL")
-            #     result = 0
-            # email_features.append(result)
+            # Extract NoHttps
+            match = re.search(r"^https", has_link_group_type[i])
+            if match:
+                print("https found in URL")
+                result = 1
+            else:
+                print("https not found in URL")
+                result = 0
+            email_features.append(result)
+
+            #########################################################################################################
+            # COMMENTED OUT BELOW TO TEST EACH FUNCTION IF CORRECT/WRONG, above this is correct/partially looked over
+            #########################################################################################################
 
             # # Extract RandomString
             # pattern = r"[a-z0-9]{8,}"
