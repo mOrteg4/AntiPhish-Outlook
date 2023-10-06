@@ -87,17 +87,36 @@ def transform_email_to_features(preprocessed_content):
             
             # Extract NumDots from preprocessed_email_content
             num_dots = has_link_group_type[i].count(".")
+            # Handle invalid dots at end of domain name extension    
+            ext = tldextract.extract(has_link_group_type[i]) #extracting
+            extension = ext.suffix
+            if extension[-1] == '.': #checks if the last character in the array is '.' as in careers.csulb.edu. where an invalid '.' is appended to the end of the URL
+             num_dots -= 1 #subtracts that from the total
             email_features.append(num_dots) 
             print("Amount of Dots in the link: ", num_dots)
 
             #TODO: Check if this correct
-            # # Extract SubdomainLevel, number is btw 0 - 126
-            # ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
-            # sub = ext.subdomain
-            # sub.split('.')
-            # email_features.append(len(sub))
-            # print("Sub Domain: ", sub)
-            # print("Subdomain Level:", len(sub))
+            # Extract SubdomainLevel, number is btw 0 - 126
+            ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
+            subdomain = ext.subdomain
+            sub_parts = subdomain.split('.')
+            # Remove port  
+            if ":" in subdomain:
+              subdomain = subdomain.split(":")[0]
+            # check if empty subdomain, set to empty 
+            if not subdomain:
+                sub_parts = []
+
+            sub_parts = subdomain.split(".")
+
+            if len(sub_parts) < 1: 
+                sublvl = 0
+            else:
+             sublvl = len(sub_parts)
+            email_features.append(sublvl)
+            print("Sub Domain: ", sub_parts) #subparts is the array of subdomains split up by '.'
+            print("Subdomain Level:", sublvl) #sublvl is the number of subdomains
+
 
             #TODO: REDO, incorrect
             # # Extract PathLevel
