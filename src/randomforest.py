@@ -104,20 +104,16 @@ def transform_email_to_features(preprocessed_content):
             # Extract SubdomainLevel, number is btw 0 - 126
             ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
             subdomain = ext.subdomain
-            sub_parts = subdomain.split('.')
-            # Remove port  
+            #remove port
             if ":" in subdomain:
-              subdomain = subdomain.split(":")[0]
-            # check if empty subdomain, set to empty 
+                    subdomain = subdomain.split(":")[0]
+            sub_parts = subdomain.split(".")
             if not subdomain:
                 sub_parts = []
-
-            sub_parts = subdomain.split(".")
-
-            if len(sub_parts) < 1: 
+            if len(sub_parts < 1):
                 sublvl = 0
             else:
-             sublvl = len(sub_parts)
+                sublvl = len(sub_parts)
             email_features.append(sublvl)
             print("Sub Domain: ", sub_parts) #subparts is the array of subdomains split up by '.'
             print("Sub Domain Level:", sublvl) #sublvl is the number of subdomains
