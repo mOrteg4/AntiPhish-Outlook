@@ -110,13 +110,14 @@ def transform_email_to_features(preprocessed_content):
             sub_parts = subdomain.split(".")
             if not subdomain:
                 sub_parts = []
-            if len(sub_parts < 1):
+            if len(sub_parts) < 1:
                 sublvl = 0
             else:
                 sublvl = len(sub_parts)
-            email_features.append(sublvl)
             print("Sub Domain: ", sub_parts) #subparts is the array of subdomains split up by '.'
             print("Sub Domain Level:", sublvl) #sublvl is the number of subdomains
+            email_features.append(sublvl)
+            
 
             # Extract PathLevel
             path_segments = has_link_group_type[i].split('/')
