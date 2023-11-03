@@ -392,32 +392,33 @@ def transform_email_to_features(preprocessed_content):
                     result = 0
                 email_features.append(result)
 
+            #TODO: list index out of range
             # Extract PctExtResourceUrls
-            total_resources = 0
-            external_resources = 0
-            for tag in temp.find_all():
-                if tag.has_attr('href'):
-                    href = tag['href']
-                    if href.startswith('http') or href.startswith('//'):
-                        domain = tldextract.extract(href).domain
-                        if domain != tldextract.extract(has_link_group_type[i]).domain:
-                            external_resources += 1
-                    total_resources += 1
-                if tag.has_attr('src'):
-                    src = tag['src']
-                    if src.startswith('http') or src.startswith('//'):
-                        domain = tldextract.extract(src).domain
-                        if domain != tldextract.extract(has_link_group_type[i]).domain:
-                            external_resources += 1
-                    total_resources += 1
-            if total_resources > 0:
-                pct_external_resources = (external_resources / total_resources) * 100
-                print(f"Percentage of external resource URLs: {round(pct_external_resources, 2)}")
-                result = round(pct_external_resources, 2)
-            else:
-                print("No resource URLs found in HTML")
-                result = 0
-            email_features.append(result)
+            # total_resources = 0
+            # external_resources = 0
+            # for tag in temp.find_all():
+            #     if tag.has_attr('href'):
+            #         href = tag['href']
+            #         if href.startswith('http') or href.startswith('//'):
+            #             domain = tldextract.extract(href).domain
+            #             if domain != tldextract.extract(has_link_group_type[i]).domain:
+            #                 external_resources += 1
+            #         total_resources += 1
+            #     if tag.has_attr('src'):
+            #         src = tag['src']
+            #         if src.startswith('http') or src.startswith('//'):
+            #             domain = tldextract.extract(src).domain
+            #             if domain != tldextract.extract(has_link_group_type[i]).domain:
+            #                 external_resources += 1
+            #         total_resources += 1
+            # if total_resources > 0:
+            #     pct_external_resources = (external_resources / total_resources) * 100
+            #     print(f"Percentage of external resource URLs: {round(pct_external_resources, 2)}")
+            #     result = round(pct_external_resources, 2)
+            # else:
+            #     print("No resource URLs found in HTML")
+            #     result = 0
+            # email_features.append(result)
 
             # Extract ExtFavicon
             for link in temp.find_all('link', rel='icon'):
@@ -522,7 +523,8 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
             email_features.append(result)
 
-            # Extract FrequentDomainNameMismatch
+            
+            #Extract FrequentDomainNameMismatch
             links = [link.get("href") for link in temp.find_all("a") if link.get("href")]
             url_domain = tldextract.extract(has_link_group_type[i]).domain
             domains = [tldextract.extract(link).domain for link in links]
