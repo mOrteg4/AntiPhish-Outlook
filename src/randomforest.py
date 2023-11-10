@@ -223,6 +223,7 @@ def transform_email_to_features(preprocessed_content):
             # Extract IpAddress
             email_message = email.message_from_string(preprocessed_content)
             header_value = email_message.get('Received', '')
+
             # Extract the hostname from the header_value
             hostname_match = re.search(r'from\s+(\S+)\s+', header_value)
             if hostname_match:
@@ -305,13 +306,13 @@ def transform_email_to_features(preprocessed_content):
                 print("Invalid URL.")
 
             #TODO: RECHECK
-            # # Extract PathLength
-            # parsed_url = urlparse(has_link_group_type[i])
-            # path = parsed_url.path
-            # path_length = len(path)
-            # email_features.append(path_length)
-            # print("Path Length: ", path_length)
-            # print("-------- Features for Dataset so Far --------\n", email_features)
+            # Extract PathLength
+            parsed_url = urlparse(has_link_group_type[i])
+            path = parsed_url.path
+            path_length = len(path)
+            email_features.append(path_length)
+            print("Path Length: ", path_length)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract QueryLength
             queries = has_link_group_type[i].split("?")
@@ -368,7 +369,7 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract PctExtHyperlinks
-            if has_link:
+            if has_link_group_type:
                 total_links = 0
                 external_links = 0
                 for link in temp.find_all('a'):
@@ -378,7 +379,7 @@ def transform_email_to_features(preprocessed_content):
                             parsed_href = urlparse(href)
                             if parsed_href.scheme in ['http', 'https'] and parsed_href.netloc:
                                 domain = tldextract.extract(href).domain
-                                if domain != tldextract.extract(has_link).domain:
+                                if domain != tldextract.extract(has_link_group_type).domain:
                                     external_links += 1
                                 total_links += 1
                         except ValueError:
@@ -394,31 +395,31 @@ def transform_email_to_features(preprocessed_content):
 
             #TODO: list index out of range
             # Extract PctExtResourceUrls
-            # total_resources = 0
-            # external_resources = 0
-            # for tag in temp.find_all():
-            #     if tag.has_attr('href'):
-            #         href = tag['href']
-            #         if href.startswith('http') or href.startswith('//'):
-            #             domain = tldextract.extract(href).domain
-            #             if domain != tldextract.extract(has_link_group_type[i]).domain:
-            #                 external_resources += 1
-            #         total_resources += 1
-            #     if tag.has_attr('src'):
-            #         src = tag['src']
-            #         if src.startswith('http') or src.startswith('//'):
-            #             domain = tldextract.extract(src).domain
-            #             if domain != tldextract.extract(has_link_group_type[i]).domain:
-            #                 external_resources += 1
-            #         total_resources += 1
-            # if total_resources > 0:
-            #     pct_external_resources = (external_resources / total_resources) * 100
-            #     print(f"Percentage of external resource URLs: {round(pct_external_resources, 2)}")
-            #     result = round(pct_external_resources, 2)
-            # else:
-            #     print("No resource URLs found in HTML")
-            #     result = 0
-            # email_features.append(result)
+            total_resources = 0
+            external_resources = 0
+            for tag in temp.find_all():
+                if tag.has_attr('href'):
+                    href = tag['href']
+                    if href.startswith('http') or href.startswith('//'):
+                        domain = tldextract.extract(href).domain
+                        if domain != tldextract.extract(has_link_group_type[i]).domain:
+                            external_resources += 1
+                    total_resources += 1
+                if tag.has_attr('src'):
+                    src = tag['src']
+                    if src.startswith('http') or src.startswith('//'):
+                        domain = tldextract.extract(src).domain
+                        if domain != tldextract.extract(has_link_group_type[i]).domain:
+                            external_resources += 1
+                    total_resources += 1
+            if total_resources > 0:
+                pct_external_resources = (external_resources / total_resources) * 100
+                print(f"Percentage of external resource URLs: {round(pct_external_resources, 2)}")
+                result = round(pct_external_resources, 2)
+            else:
+                print("No resource URLs found in HTML")
+                result = 0
+            email_features.append(result)
 
             # Extract ExtFavicon
             for link in temp.find_all('link', rel='icon'):
@@ -488,22 +489,21 @@ def transform_email_to_features(preprocessed_content):
             #our dataset so far
             print("-------- Features for Dataset so Far --------\n", email_features)
 
-            #TODO: Recheck/redo
-            # # Extract AbnormalFormAction
-            # form_action = "about:blank"
-            # if not form_action:
-            #     print("Empty form action")
-            #     result = 1
-            # elif re.search(r"^javascript:true$", form_action):
-            #     print("Form action contains javascript:true")
-            #     result = 1
-            # elif re.search(r"^(#|about:blank)$", form_action):
-            #     print("Form action contains # or about:blank")
-            #     result = 1
-            # else:
-            #     print("Normal form action")
-            #     result = 0
-            # email_features.append(result)
+            # Extract AbnormalFormAction
+            form_action = "about:blank"
+            if not form_action:
+                print("Empty form action")
+                result = 1
+            elif re.search(r"^javascript:true$", form_action):
+                print("Form action contains javascript:true")
+                result = 1
+            elif re.search(r"^(#|about:blank)$", form_action):
+                print("Form action contains # or about:blank")
+                result = 1
+            else:
+                print("Normal form action")
+                result = 0
+            email_features.append(result)
 
             # Extract PctNullSelfRedirectHyperlinks
             total_links = 0
@@ -710,42 +710,42 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
             print("Percentage of external Meta/Script/Link tags: ", result)
 
-            # #TODO: RECHECK
-            # # Extract PctExtNullSelfRedirectHyperlinksRT
-            # soup = BeautifulSoup(html_content, 'html.parser')
-            # # Find all <a> tags with href attributes
-            # tags = soup.find_all('a', href=True)
-            # # Initialize counts
-            # total_links = len(tags)
-            # external_links = 0
-            # null_links = 0
-            # self_redirect_links = 0
-            # for tag in tags:
-            #     href = tag.get('href')
-            #     if not href:
-            #         null_links += 1
-            #     elif href.startswith("#") or href.startswith("javascript::void(0)"):
-            #         null_links += 1
-            #     elif has_link_group_type[i] not in href:
-            #         external_links += 1
-            #     elif href == has_link_group_type[i] or href == has_link_group_type[i] + "/" or href == has_link_group_type[i] + "#":
-            #         self_redirect_links += 1
-            # # Calculate percentages
-            # if total_links == 0:
-            #     result = 0
-            # else:
-            #     pct_null_links = null_links / total_links
-            #     pct_external_links = external_links / total_links
-            #     pct_self_redirect_links = self_redirect_links / total_links
-            #     # Set result based on percentages
-            #     if pct_external_links > 0:
-            #         result = 1
-            #     elif pct_null_links > 0:
-            #         result = -1
-            #     else:
-            #         result = 0
-            # email_features.append(result)
-            # print("Percentage of hyperlinks in HTML source code: ", result)
+            #TODO: RECHECK
+            # Extract PctExtNullSelfRedirectHyperlinksRT
+            soup = BeautifulSoup(html_content, 'html.parser')
+            # Find all <a> tags with href attributes
+            tags = soup.find_all('a', href=True)
+            # Initialize counts
+            total_links = len(tags)
+            external_links = 0
+            null_links = 0
+            self_redirect_links = 0
+            for tag in tags:
+                href = tag.get('href')
+                if not href:
+                    null_links += 1
+                elif href.startswith("#") or href.startswith("javascript::void(0)"):
+                    null_links += 1
+                elif has_link_group_type[i] not in href:
+                    external_links += 1
+                elif href == has_link_group_type[i] or href == has_link_group_type[i] + "/" or href == has_link_group_type[i] + "#":
+                    self_redirect_links += 1
+            # Calculate percentages
+            if total_links == 0:
+                result = 0
+            else:
+                pct_null_links = null_links / total_links
+                pct_external_links = external_links / total_links
+                pct_self_redirect_links = self_redirect_links / total_links
+                # Set result based on percentages
+                if pct_external_links > 0:
+                    result = 1
+                elif pct_null_links > 0:
+                    result = -1
+                else:
+                    result = 0
+            email_features.append(result)
+            print("Percentage of hyperlinks in HTML source code: ", result)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
     #if there are no links, it's unlikely to be phishing (NOTE: 1 is phishing, 0 is not. I'm not keeping in the Class Label)
