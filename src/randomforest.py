@@ -369,7 +369,12 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(result)
 
             # Extract PctExtHyperlinks
-            if has_link_group_type:
+            for html_string in has_link_group_type:
+                try:
+                    temp = BeautifulSoup(html_string, 'html.parser')
+                except Exception as e:
+                    print(f"Error parsing HTML: {e}")
+                    continue
                 total_links = 0
                 external_links = 0
                 for link in temp.find_all('a'):
@@ -529,13 +534,17 @@ def transform_email_to_features(preprocessed_content):
             url_domain = tldextract.extract(has_link_group_type[i]).domain
             domains = [tldextract.extract(link).domain for link in links]
             domain_counts = Counter(domains)
-            most_frequent_domain = domain_counts.most_common(1)[0][0]
-            if most_frequent_domain != url_domain:
-                result = 1 
-                print("Frequent domain name mismatch found")
+            if domain_counts:  # Check if domain_counts is not empty
+                most_frequent_domain = domain_counts.most_common(1)[0][0]
+                if most_frequent_domain != url_domain:
+                    result = 1 
+                    print("Frequent domain name mismatch found")
+                else:
+                    result = 0 
+                    print("Frequent domain name mismatch not found")
             else:
-                result = 0 
-                print("Frequent domain name mismatch not found")
+                result = 0
+                print("No domains found in links")
             email_features.append(result)
 
             # Extract FakeLinkInStatusBar
