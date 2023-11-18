@@ -75,10 +75,6 @@ def transform_email_to_features(preprocessed_content):
             id = 134, random number that the website generated for the link
             """
 
-            #########################################
-            # COMMENTED OUT FUNCTIONS IF UNSURE/WRONG
-            #########################################
-
             # Extract ID
             print("List of URLs:")
             print(has_link_group_type)
@@ -384,7 +380,7 @@ def transform_email_to_features(preprocessed_content):
                             parsed_href = urlparse(href)
                             if parsed_href.scheme in ['http', 'https'] and parsed_href.netloc:
                                 domain = tldextract.extract(href).domain
-                                if domain != tldextract.extract(has_link_group_type).domain:
+                                if domain != tldextract.extract(html_string).domain:
                                     external_links += 1
                                 total_links += 1
                         except ValueError:
@@ -397,6 +393,7 @@ def transform_email_to_features(preprocessed_content):
                     print("No hyperlinks found in HTML")
                     result = 0
                 email_features.append(result)
+
 
             #TODO: list index out of range
             # Extract PctExtResourceUrls
@@ -496,8 +493,8 @@ def transform_email_to_features(preprocessed_content):
 
             # Extract AbnormalFormAction
             form_action = "about:blank"
-            if not form_action:
-                print("Empty form action")
+            if form_action == "about:blank":
+                print("Form action is about:blank")
                 result = 1
             elif re.search(r"^javascript:true$", form_action):
                 print("Form action contains javascript:true")
@@ -527,7 +524,6 @@ def transform_email_to_features(preprocessed_content):
                 print("No hyperlinks found in HTML")
                 result = 0
             email_features.append(result)
-
             
             #Extract FrequentDomainNameMismatch
             links = [link.get("href") for link in temp.find_all("a") if link.get("href")]
@@ -610,7 +606,7 @@ def transform_email_to_features(preprocessed_content):
 
             # Extract ImagesOnlyInForm
             forms = temp.find_all('form')
-            results = []  # Create a list to store results for each form
+            # results = []  # Create a list to store results for each form
             for form in forms:
                 if all([img.has_attr('src') for img in form.find_all('img')]) and not form.get_text().strip():
                     result = 1
@@ -618,8 +614,8 @@ def transform_email_to_features(preprocessed_content):
                 else:
                     result = 0
                     print("Text found in form")
-                results.append(result)  # Append the result for each form
-            email_features.extend(results)  # Append all results to email_features
+                email_features.append(result)  # Append the result for each form
+            # email_features.extend(results)  # Append all results to email_features
 
             # Extract SubdomainLevelRT
             parsed_url = urlparse(has_link_group_type[i])
