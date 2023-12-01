@@ -167,17 +167,19 @@ def transform_email_to_features(preprocessed_content):
             email_features.append(num_percent)
             print("Amount of Percent Symbol Found in Url: ", num_percent)
 
-            # starts with "?" and separated by "&" until the end of string, 
+            # Queries are after "?" and separated by "&" or "+" until the end of string
+            # A Queries starts with a key, has '=' as a seperater, and the values after it
+            # r"(\w+)=(\w+)"
+            # (\w+) finds all sequences of one or more char (this is the key, usually it is 'q' but it can be a word like 'query')
+            # followed by '=' 
+            # followed by (\w+) which are more characters (these are the values of the query)
             # example of query of 2 components: https://example.com/page?parameter1=x&parameter2=y
+            # queries are parameter1=x and parameter2=y, it would look like this [(parameter1,x), (parameter2=y)]
             # Extract NumQueryComponents
-            query_string = has_link_group_type[i].split("?")
-            if len(query_string) > 1:
-                components = query_string[1].split("&")
-                num_query_components = len(components)
-            else:
-                num_query_components = 0
-            email_features.append(num_query_components)
-            print("Amount of Queries: ", num_query_components)
+            queries = re.findall(r"(\w+)=(\w+)", has_link_group_type[i])
+            query_length = len(queries)
+            email_features.append(query_length)
+            print("Query List: ", queries)
 
             # Extract NumAmpersand from preprocessed_email_content
             num_ampersand = has_link_group_type[i].count("&")
@@ -204,13 +206,20 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
             email_features.append(result)
 
-            #TODO: CHeck again perhaps
             # Extract RandomString
-            matches = re.findall(r"[a-zA-Z0-9]{8,}", has_link_group_type[i], re.IGNORECASE)
-            if matches:
+            # find if there is a random string in the link
+            # Note: "Random strings in links: creating unique identifiers, preventing caching, or adding security."
+            # [a-zA-Z0-9] any sequence of lowercase, lower can uppercase, letters and numbers, and numbers
+            # {8,} = any sequence of at least 8
+            # matches returns a list of random strings that are found in the link
+            matches = re.findall(r"[a-zA-Z0-9]{6,}", has_link_group_type[i], re.IGNORECASE)
+            #if there is a random string
+            if len(matches) > 0:
+                #return true
                 result = 1
                 print("Random string found")
             else:
+                #if there is none, return false
                 result = 0
                 print("Random string not found")
             email_features.append(result)
@@ -301,39 +310,43 @@ def transform_email_to_features(preprocessed_content):
             else:
                 print("Invalid URL.")
 
-            #TODO: RECHECK
             # Extract PathLength
-            parsed_url = urlparse(has_link_group_type[i])
-            path = parsed_url.path
-            path_length = len(path)
+            # max url length is usually under 2000, bc not all browsers can work over it
+            # this means anything over is suspisious.
+            #r"(?<=/)[^?#]*" finds sequences that does not contain ? or #, and is preceded by a /
+            path_length = len(re.findall(r"(?<=/)[^?#]*", has_link_group_type[i]))
             email_features.append(path_length)
             print("Path Length: ", path_length)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract QueryLength
-            queries = has_link_group_type[i].split("?")
-            query_length = 0
-            for i in queries[1:]:
-                query_length += len(i)
+            # using the same example: https://example.com/page?parameter1=x&parameter2=y
+            # urlparse(has_link_group_type[0]).query returns "parameter1=x&parameter2=y"
+            # so we use len to get the length of that query string
+            query_length = len(urlparse(has_link_group_type[0]).query)
             email_features.append(query_length)
-            print("Query List: ", queries)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract DoubleSlashInPath
-            parsed_url = urlparse(has_link_group_type[i])
-            path = parsed_url.path
-            if "//" in path:
+            #if there are double slashes in the the path, return 1
+            if re.search("//", urlparse(has_link_group_type[0]).path):
                 print("// exists in the path.")
                 result = 1
+            #else there are not then return 0
             else:
                 print("// does not exist in the path.")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract NumSensitiveWords
+            # list of sensitive words
             sensitive_words = ["secure", "account", "webscr", "login", "ebayisapi", "signin", "banking", "confirm"]
+            # sum of amount of sensitive words
             num_sensitive_words = sum([1 for word in sensitive_words if re.search(word, has_link_group_type[i], re.IGNORECASE)])
             email_features.append(num_sensitive_words)
             print("Amount of Sensitive Words: ", num_sensitive_words)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract EmbeddedBrandName
             parsed_url = urlparse(has_link_group_type[i])
@@ -363,6 +376,7 @@ def transform_email_to_features(preprocessed_content):
                 print("Error: could not extract hostname from URL")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctExtHyperlinks
             for html_string in has_link_group_type:
@@ -393,6 +407,7 @@ def transform_email_to_features(preprocessed_content):
                     print("No hyperlinks found in HTML")
                     result = 0
                 email_features.append(result)
+                print("-------- Features for Dataset so Far --------\n", email_features)
 
 
             #TODO: list index out of range
