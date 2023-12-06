@@ -8,10 +8,8 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
-import ipaddress
 from sklearn.ensemble import RandomForestClassifier
 import statistics as stats
-import email
 
 def preprocess_email_content(email_content):
     print("Preprocessing email contents...")
@@ -39,13 +37,25 @@ def transform_email_to_features(preprocessed_content):
 
     #if there are links, get data to check if phishing (im assuming theres one link for now)
     print("This is the length of has_link_group_type: " + str(len(has_link_group_type)))
+    print("These are all the links in that list: ")
+    for site in range (0, len(has_link_group_type)):
+        print("Link ", site+1, ": ", has_link_group_type[site])
     #get a list of all of the links in the email
     if match and (len(has_link_group_type) != 0):
         #check each website for sub-categories (ex: id, subdomain, etc.)
         for i in range(0, len(has_link_group_type)):
-            print("=============================================================")
+            #expecting multiple links in the email
+            if len(email_features) != 0:
+                multiple_links.append(email_features)
+            email_features.clear()
+            print("List of All Email Features so Far: ")
+            print("**should end with a total of ", len(has_link_group_type)," email_features lists within the list**")
+            
+            print("================================================================")
+            print("                  STARTING TO FIND SUBCATEGORIES                ")
+            print("================================================================")
             #print the number we are on
-            print("Number for i: ", i)
+            print("Number for i (current num we are on): ", i+1)
             #print the link we are curently on
             print("Current link: ", has_link_group_type[i])
             # GET request to URL
@@ -54,10 +64,7 @@ def transform_email_to_features(preprocessed_content):
             temp = BeautifulSoup(response.content, 'html.parser')
             html_content = response.text
 
-            #expecting multiple links in the email
-            if len(email_features) != 0:
-                multiple_links.append(email_features)
-            email_features.clear()
+            
 
             """
             URL contains 10 parts, which are what we are looking at
@@ -76,8 +83,7 @@ def transform_email_to_features(preprocessed_content):
             """
 
             # Extract ID
-            print("List of URLs:")
-            print(has_link_group_type)
+            print("EXTRACT ID from ", has_link_group_type[i])
             try:
                 id = re.findall('/(\d+)\/|ID=(\d+/g)',has_link_group_type[i])[0]
              # id doesnt-'t exist    
@@ -88,6 +94,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract NumDots from preprocessed_email_content
+            print("EXTRACT NUMBER OF DOTS from ", has_link_group_type[i])
             num_dots = has_link_group_type[i].count(".")
             # Handle invalid dots at end of domain name extension    
             ext = tldextract.extract(has_link_group_type[i]) #extracting
@@ -96,8 +103,10 @@ def transform_email_to_features(preprocessed_content):
              num_dots -= 1 #subtracts that from the total
             email_features.append(num_dots) 
             print("Amount of Dots in the link: ", num_dots)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract SubdomainLevel, number is btw 0 - 126
+            print("EXTRACT SUBDOMAIN LEVEL")
             ext = tldextract.extract(has_link_group_type[i]) #https://pypi.org/project/tldextract/
             subdomain = ext.subdomain
             #remove port
@@ -113,32 +122,42 @@ def transform_email_to_features(preprocessed_content):
             print("Sub Domain: ", sub_parts) #subparts is the array of subdomains split up by '.'
             print("Sub Domain Level:", sublvl) #sublvl is the number of subdomains
             email_features.append(sublvl)
-            
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PathLevel
+            print("EXTRACT PATH LEVEL")
             path_segments = has_link_group_type[i].split('/')
             path_level = len([segment for segment in path_segments if segment])  # Count non-empty segments
             email_features.append(path_level)
             print("Path Level: ", path_level)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract UrlLength
+            print("EXTRACT URL LENGTH")
             email_features.append(len(has_link_group_type[i]))
             print("Url: ", has_link_group_type[i])
             print("Url Length: ", len(has_link_group_type[i]))
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
-            # Extract NumDash from preprocessed_email_content
+            # Extract NumDash
+            print("EXTRACT NUMBER OF - SYMBOL")
             num_dash = has_link_group_type[i].count("-")
             email_features.append(num_dash)
             print("Amount of Dashes: ", num_dash)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract NumDashInHostname
+            print("EXTRACT NUMBER OF - SYMBOL IN HOST NAME")
+            print("Url: ", has_link_group_type[i])
             hostname = re.findall(r'https?://([^/]+)', has_link_group_type[i])[0]
+            print("Hostname: ", hostname)
             num_dash_in_domain = hostname.count("-")
             email_features.append(num_dash_in_domain)
-            print("Hostname: ", hostname)
             print("Amount of Dashes in Host Domain: ", num_dash_in_domain)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract AtSymbol
+            print("EXTRACT NUMBER OF @ SYMBOL")
             if "@" in has_link_group_type[i]:
                 print("@ symbol found in URL")
                 result = 1
@@ -146,8 +165,10 @@ def transform_email_to_features(preprocessed_content):
                 print("@ symbol not found in URL")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract TildeSymbol
+            print("EXTRACT NUMBER OF ~ SYMBOL")
             if "~" in has_link_group_type[i]:
                 print("Tilde symbol found in URL")
                 result = 1
@@ -155,17 +176,21 @@ def transform_email_to_features(preprocessed_content):
                 print("Tilde symbol not found in URL")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
-            # Extract NumUnderscore from preprocessed_email_content
+            # Extract NumUnderscore
+            print("EXTRACT NUMBER OF _ SYMBOL")
             num_underscore = has_link_group_type[i].count("_")
             email_features.append(num_underscore)
             print("Amount of Underscore in Url: ", num_underscore)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract NumPercent from preprocessed_email_content
+            print("EXTRACT NUMBER OF % SYMBOL")
             num_percent = has_link_group_type[i].count("%")
             email_features.append(num_percent)
             print("Amount of Percent Symbol Found in Url: ", num_percent)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Queries are after "?" and separated by "&" or "+" until the end of string
             # A Queries starts with a key, has '=' as a seperater, and the values after it
@@ -176,27 +201,37 @@ def transform_email_to_features(preprocessed_content):
             # example of query of 2 components: https://example.com/page?parameter1=x&parameter2=y
             # queries are parameter1=x and parameter2=y, it would look like this [(parameter1,x), (parameter2=y)]
             # Extract NumQueryComponents
+            print("NUMBER OF QUERY COMPONENTS")
             queries = re.findall(r"(\w+)=(\w+)", has_link_group_type[i])
             query_length = len(queries)
             email_features.append(query_length)
             print("Query List: ", queries)
+            print("Number of Queries: ", len(queries))
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
-            # Extract NumAmpersand from preprocessed_email_content
+            # Extract NumAmpersand
+            print("EXTRACT NUMBER OF & SYMBOLS")
             num_ampersand = has_link_group_type[i].count("&")
             email_features.append(num_ampersand)
             print("Amount of Ampersand: ", num_ampersand)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
-            # Extract NumHash from preprocessed_email_content
+            # Extract NumHash
+            print("EXTRACT NUMBER OF # SYMBOLS")
             num_hash = has_link_group_type[i].count("#")
             email_features.append(num_hash)
             print("Amount of Hash: ", num_hash)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
-            # Extract NumNumericChars from preprocessed_email_content
+            # Extract NumNumericChars
+            print("EXTRACT NUMBER OF NUMERICAL CHARACTERS")
             num_numeric_chars = sum(c.isdigit() for c in has_link_group_type[i])
             email_features.append(num_numeric_chars)
             print("Amount of Numeric Characters: ", num_numeric_chars)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract NoHttps
+            print("CHECK IF THERE ARE ANY HTTPS")
             match = re.search(r"^https", has_link_group_type[i])
             if match:
                 print("https found in URL")
@@ -205,6 +240,7 @@ def transform_email_to_features(preprocessed_content):
                 print("https not found in URL")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract RandomString
             # find if there is a random string in the link
@@ -212,6 +248,7 @@ def transform_email_to_features(preprocessed_content):
             # [a-zA-Z0-9] any sequence of lowercase, lower can uppercase, letters and numbers, and numbers
             # {8,} = any sequence of at least 8
             # matches returns a list of random strings that are found in the link
+            print("CHECK IF THERE IS A RANDOM/UNQIE STRING")
             matches = re.findall(r"[a-zA-Z0-9]{6,}", has_link_group_type[i], re.IGNORECASE)
             #if there is a random string
             if len(matches) > 0:
@@ -226,62 +263,57 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract IpAddress
-            email_message = email.message_from_string(preprocessed_content)
-            header_value = email_message.get('Received', '')
-
-            # Extract the hostname from the header_value
-            hostname_match = re.search(r'from\s+(\S+)\s+', header_value)
-            if hostname_match:
-                hostname = hostname_match.group(1)
-                try:
-                    ipaddress.ip_address(hostname)
-                    print("The hostname is an IP address.")
-                    result = 1
-                except ValueError:
-                    print("The hostname is not an IP address.")
-                    result = 0
+            print("EXTRACT THE ID ADDRESS")
+            # Define the regular expression
+            regex = r"^ (http|https)://\d+\.\d+\.\d+\.\d+\.*"
+            # Compile the regular expression
+            pattern = re.compile(regex)
+            # Test if the URL matches the regular expression
+            if pattern.match(has_link_group_type[i]):
+                # Return 0 if true
+                print("IP Address is in Link")
+                ip_address =  0
             else:
-                print("No hostname found in the header.")
-                result = 0
-            email_features.append(result)
+                # Return 1 if false
+                print("IP Address is not in Link")
+                ip_address = 1
+            print("IP Address: ", ip_address)
+            email_features.append(ip_address)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract DomainInSubdomains
-            subdomain, _, tld = tldextract.extract(has_link_group_type[i])
-            if tld in subdomain:
-                print("The TLD or ccTLD is used in the subdomain.")
-                result = 1
-            else:
-                print("The TLD or ccTLD is not used in the subdomain.")
-                result = 0
-            email_features.append(result)
-
-            # Extract DomainInPaths
+            print("CHECK IF DOMAIN IS IN THE SUBDOMAIN")
             parsed_url = urlparse(has_link_group_type[i])
-            path = parsed_url.path
-            # Check if there are multiple slashes in the path
-            if '/' in path:
-                path_parts = path.split('/')
-                for part in path_parts:
-                    if part:
-                        tld = tldextract.extract(part).suffix
-                        if tld:
-                            print("The TLD or ccTLD is used in the path.")
-                            result = 1
-                            break
-                else:
-                    print("The TLD or ccTLD is not used in the path.")
-                    result = 0
-            else:
-                tld = tldextract.extract(path).suffix
-                if tld:
-                    print("The TLD or ccTLD is used in the path.")
+            domain = tldextract.extract(parsed_url.netloc).domain
+            result = 0
+            for check in range(len(sub_parts)):
+                if domain == sub_parts[check]:
+                    print("Domain is used in the subdomain.")
+                    print("Domain: ", domain, "     Subdomain: ", subdomain)
                     result = 1
                 else:
-                    print("The TLD or ccTLD is not used in the path.")
+                    print("Domain is not used in the subdomain.")
                     result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
+
+            # Extract DomainInPaths
+            print("CHECK IF THE DOMAIN IS IN THE PATHS")
+            parsed_url = urlparse(has_link_group_type[i])
+            domain = tldextract.extract(parsed_url.netloc).domain
+            paths = parsed_url.path
+            # default is domain is not found in path
+            result = 0
+            # check through each path
+            for path in paths.split("/"):
+                if domain in path:
+                    print("Domain was found in path")
+                    result = 1
+            email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract HttpsInHostname
+            print("CHECK IF HTTPS IS IN THE HOSTNAME")
             parsed_url = urlparse(has_link_group_type[i])
             if parsed_url and parsed_url.hostname:
                 hostname = parsed_url.hostname
@@ -295,16 +327,16 @@ def transform_email_to_features(preprocessed_content):
                 print("Invalid URL.")
                 result = 0
             email_features.append(result)
-
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract HostnameLength
+            print("EXTRACT THE LENGTH OF THE HOSTNAME")
             parsed_url = urlparse(has_link_group_type[i])
             if parsed_url.hostname:
                 hostname = parsed_url.hostname
                 hostname_length = len(hostname)
                 email_features.append(hostname_length)
-                print("Hostname: ", hostname)
+                print("Hostname: ", hostname, "   Length: ", hostname_length)
                 # The dataset so far
                 print("-------- Features for Dataset so Far --------\n", email_features)
             else:
@@ -314,6 +346,7 @@ def transform_email_to_features(preprocessed_content):
             # max url length is usually under 2000, bc not all browsers can work over it
             # this means anything over is suspisious.
             #r"(?<=/)[^?#]*" finds sequences that does not contain ? or #, and is preceded by a /
+            print("EXTRACT THE LENGTH OF THE PATH")
             path_length = len(re.findall(r"(?<=/)[^?#]*", has_link_group_type[i]))
             email_features.append(path_length)
             print("Path Length: ", path_length)
@@ -323,13 +356,17 @@ def transform_email_to_features(preprocessed_content):
             # using the same example: https://example.com/page?parameter1=x&parameter2=y
             # urlparse(has_link_group_type[0]).query returns "parameter1=x&parameter2=y"
             # so we use len to get the length of that query string
-            query_length = len(urlparse(has_link_group_type[0]).query)
+            print("EXTRACT THE LENGTH OF THE QUERY")
+            parsed_url = urlparse(has_link_group_type[i])
+            query_length = len(parsed_url.query)
             email_features.append(query_length)
             print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract DoubleSlashInPath
             #if there are double slashes in the the path, return 1
-            if re.search("//", urlparse(has_link_group_type[0]).path):
+            print("CHECK IF THERE ARE // in PATH")
+            parsed_url = urlparse(has_link_group_type[i])
+            if re.search("//", parsed_url.path):
                 print("// exists in the path.")
                 result = 1
             #else there are not then return 0
@@ -340,6 +377,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
             
             # Extract NumSensitiveWords
+            print("EXTRACT THE NUMBER OF TIME SENSITIVE WORDS SHOWS UP IN THE LINK")
             # list of sensitive words
             sensitive_words = ["secure", "account", "webscr", "login", "ebayisapi", "signin", "banking", "confirm"]
             # sum of amount of sensitive words
@@ -349,6 +387,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract EmbeddedBrandName
+            print("CHECK IF THE BRANDNAME IS EMBEDDED")
             parsed_url = urlparse(has_link_group_type[i])
             if parsed_url.hostname is not None:
                 subdomains = parsed_url.hostname.split(".")[:-2]  # Exclude TLD and domain
@@ -406,37 +445,31 @@ def transform_email_to_features(preprocessed_content):
                 else:
                     print("No hyperlinks found in HTML")
                     result = 0
-                email_features.append(result)
-                print("-------- Features for Dataset so Far --------\n", email_features)
+            email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
 
-            #TODO: list index out of range
             # Extract PctExtResourceUrls
+            print("EXTRACT THE PERCENT OF EXT RESOURCES IN THE URL")
             total_resources = 0
             external_resources = 0
-            for tag in temp.find_all():
-                if tag.has_attr('href'):
-                    href = tag['href']
-                    if href.startswith('http') or href.startswith('//'):
-                        domain = tldextract.extract(href).domain
-                        if domain != tldextract.extract(has_link_group_type[i]).domain:
-                            external_resources += 1
-                    total_resources += 1
-                if tag.has_attr('src'):
-                    src = tag['src']
-                    if src.startswith('http') or src.startswith('//'):
-                        domain = tldextract.extract(src).domain
-                        if domain != tldextract.extract(has_link_group_type[i]).domain:
-                            external_resources += 1
-                    total_resources += 1
+            response = requests.get(has_link_group_type[i])
+            html = response.text
+            soup = BeautifulSoup(html, "html.parser")
+            tags = soup.find_all(src=True) + soup.find_all(href=True)
+            for tag in tags:
+                link = tag.get("src") or tag.get("href")
+                if link.startswith("http") or link.startswith("https"):
+                    # increment the external counter
+                    external_resources += 1
+            total_resources = len(tags)
             if total_resources > 0:
-                pct_external_resources = (external_resources / total_resources) * 100
-                print(f"Percentage of external resource URLs: {round(pct_external_resources, 2)}")
-                result = round(pct_external_resources, 2)
+                percentage = external_resources / total_resources * 100
+                print("Pct of Ext Resouce in Url: ", external_resources, " / ", total_resources, " * 100 = ", percentage)
             else:
-                print("No resource URLs found in HTML")
-                result = 0
-            email_features.append(result)
+                percentage = 0
+            email_features.append(percentage)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ExtFavicon
             for link in temp.find_all('link', rel='icon'):
@@ -445,15 +478,16 @@ def transform_email_to_features(preprocessed_content):
                     domain = tldextract.extract(href).domain
                     if domain != tldextract.extract(has_link_group_type[i]).domain:
                         print(f"External favicon found: {href}")
-                        email_features.append(1)
+                        result = 1
                     else:
                         print("External favicon not found")
-                        email_features.append(0)
+                        result = 0
                 else:
-                    email_features.append(0)
+                    result = 0
             if len(temp.find_all('link', rel='icon')) == 0:
-                email_features.append(0)
+                result = 0
             #our dataset so far
+            email_features.append(result)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract InsecureForms
@@ -463,14 +497,16 @@ def transform_email_to_features(preprocessed_content):
                     parsed_url = urlparse(action)
                     if parsed_url.scheme != "https":
                         print(f"Insecure form action found: {action}")
-                        email_features.append(1)
+                        result = 1
                     else:
                         print("Insecure form action not found")
-                        email_features.append(0)
+                        result = 0
                 else:
-                    email_features.append(0)
+                    result = 0
             if len(temp.find_all('form')) == 0:
-                email_features.append(0)
+                result = 0
+            email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract RelativeFormAction
             for form in temp.find_all('form'):
@@ -479,14 +515,16 @@ def transform_email_to_features(preprocessed_content):
                     parsed_url = urlparse(action)
                     if not parsed_url.scheme and not parsed_url.netloc:
                         print(f"Relative form action found: {action}")
-                        email_features.append(1)
+                        result = 1
                     else:
                         print("Relative form action not found")
-                        email_features.append(0)
+                        result = 0
                 else:
-                    email_features.append(0)
+                    result = 0
             if len(temp.find_all('form')) == 0:
-                email_features.append(0)
+                result = 0
+            email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ExtFormAction
             for form in temp.find_all('form'):
@@ -495,14 +533,15 @@ def transform_email_to_features(preprocessed_content):
                     domain = tldextract.extract(action).domain
                     if domain != "example" and domain != "localhost":
                         print(f"External form action found: {action}")
-                        email_features.append(1)
+                        result = 1
                     else:
                         print("External form action not found")
-                        email_features.append(0)
+                        result = 0
                 else:
-                    email_features.append(0)
+                    result = 0
             if len(temp.find_all('form')) == 0:
-                email_features.append(0)
+                result = 0
+            email_features.append(result)
             #our dataset so far
             print("-------- Features for Dataset so Far --------\n", email_features)
 
@@ -521,6 +560,7 @@ def transform_email_to_features(preprocessed_content):
                 print("Normal form action")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctNullSelfRedirectHyperlinks
             total_links = 0
@@ -539,6 +579,7 @@ def transform_email_to_features(preprocessed_content):
                 print("No hyperlinks found in HTML")
                 result = 0
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             #Extract FrequentDomainNameMismatch
             links = [link.get("href") for link in temp.find_all("a") if link.get("href")]
@@ -557,6 +598,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("No domains found in links")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract FakeLinkInStatusBar
             if "onMouseOver" in html_content:
@@ -566,6 +608,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0 
                 print("Fake link in status bar not found")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract RightClickDisabled
             right_click_pattern = re.compile(r'document\.oncontextmenu\s*=\s*function\s*\(\s*\)\s*{\s*return\s+false;\s*}')
@@ -577,6 +620,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("Right click disabled: No")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PopUpWindow
             if "window.open" in html_content:
@@ -586,6 +630,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("Pop Up Window: No")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract SubmitInfoToEmail
             mailto_links = temp.find_all("a", href=lambda href: href and href.startswith("mailto:"))
@@ -608,6 +653,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("Iframe or frame not found")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract MissingTitle
             title = temp.find('title')
@@ -618,6 +664,7 @@ def transform_email_to_features(preprocessed_content):
                 result = 0
                 print("Title not found or empty")
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ImagesOnlyInForm
             forms = temp.find_all('form')
@@ -631,6 +678,7 @@ def transform_email_to_features(preprocessed_content):
                     print("Text found in form")
                 email_features.append(result)  # Append the result for each form
             # email_features.extend(results)  # Append all results to email_features
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract SubdomainLevelRT
             parsed_url = urlparse(has_link_group_type[i])
@@ -645,6 +693,7 @@ def transform_email_to_features(preprocessed_content):
                 print("SubDomain Level Rules and Thresholds: Phishing")
                 result = -1
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract UrlLengthRT
             url_length = len(has_link_group_type[i])
@@ -658,8 +707,10 @@ def transform_email_to_features(preprocessed_content):
                 print("URL Length Rules and Thresholds: Phishing")
                 result = -1
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctExtResourceUrlsRT
+            print("EXTRACTING PctExtResourceUrlsRT")
             try:
                 response = requests.get(has_link_group_type[i], timeout=5)
                 html = response.text
@@ -687,8 +738,10 @@ def transform_email_to_features(preprocessed_content):
                     print("No resource URLs found in HTML")
                     result = -1
             email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract AbnormalExtFormActionR
+            print("EXTRACTING AbnormalExtFormActionR")
             pattern = re.compile(r'<form.*?\saction=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL)
             matches = pattern.findall(html_content)
             for match in matches:
@@ -701,7 +754,8 @@ def transform_email_to_features(preprocessed_content):
                 else:
                     result = 0
                     print("Normal form action attribute")
-                email_features.append(result)
+            email_features.append(result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
             
             
             # Extract ExtMetaScriptLinkRT
@@ -729,6 +783,7 @@ def transform_email_to_features(preprocessed_content):
                     result = 0
             email_features.append(result)
             print("Percentage of external Meta/Script/Link tags: ", result)
+            print("-------- Features for Dataset so Far --------\n", email_features)
 
             #TODO: RECHECK
             # Extract PctExtNullSelfRedirectHyperlinksRT
@@ -768,8 +823,11 @@ def transform_email_to_features(preprocessed_content):
             print("Percentage of hyperlinks in HTML source code: ", result)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
+            # CLASS LABEL (49th feature) 
+            # this will be done in random forest so we will just put a filler for now (DOES NOT AFFECT PREDICTION)
+            email_features.append(0)
+
     #if there are no links, it's unlikely to be phishing (NOTE: 1 is phishing, 0 is not. I'm not keeping in the Class Label)
-    # NOT CLASS_LABEL BECAUSE THAT IS WHAT WE ARE PREDICTING
     else:
         email_features = {9820,2,1,2,45,0,0,0,0,0,0,0,0,0,0,
                           1,0,0,0,0,0,22,16,0,0,0,0,0.0583941606,0.1666666667,0,
@@ -779,7 +837,9 @@ def transform_email_to_features(preprocessed_content):
     
     np.array(email_features)
     print("Features for Dataset:", email_features)
+    print("All of the Links: ", multiple_links)
 
+    #check if this runs through each link or just the last link
     return email_features
 
 def check_phishing(email_data):
@@ -816,22 +876,23 @@ def check_phishing(email_data):
     forest.fit(train_features, train_labels)
 
     # Predict if the email is a phishing attempt using the random forest model
-    #possibly change this back to without the reshape
-    phishing_prediction = forest.predict([email_features])
+    # this is the class label (49th feature)
+    phishing_prediction = forest.predict([email_features])[0]
 
     # phishing prediction should output a lost of the features with it's pediction
     # of whether it's phishing or not
     # ex: [0 , 1, 0, 0, 0, 1, 0, 0, 0,..., 0]
     # Set a threshold for the prediction to classify it as phishing or not
-    average = stats.mean(phishing_prediction)
+    average = stats.mean(email_features)
     test = str(average)
     phishing_threshold = 0.5
-    if average > phishing_threshold:
-        print("This email seems legitimate. Prediction: " + test)
-        return "This email appears to be authentic and trustworthy. Prediction: " + test
-    else:
+    if average <= phishing_threshold:
         print("This email may be a phishing attempt. Prediction: " + test)
         return "This is a phishing attempt. Report this immediately.  Prediction: " + test
+    else:
+        print("This email seems legitimate. Prediction: " + test)
+        return "This email appears to be authentic and trustworthy. Prediction: " + test
+        
 
 
 
