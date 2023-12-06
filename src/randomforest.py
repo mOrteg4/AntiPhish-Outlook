@@ -24,7 +24,7 @@ def transform_email_to_features(preprocessed_content):
     email_features = []
     multiple_links = []
 
-    #check if there are links
+    # check if there are links
     # has_link = re.findall(r'\<.*?\>', preprocess_email_content)
     url_pattern = re.compile(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+')
     has_link = None
@@ -855,10 +855,14 @@ def transform_email_to_features(preprocessed_content):
     
     np.array(email_features)
     print("Features for Dataset:", email_features)
-    print("All of the Links: ", multiple_links)
+    print("All of the Links Datasets: ", multiple_links)
 
     #check if this runs through each link or just the last link
-    return email_features
+    return multiple_links
+
+
+
+
 
 def check_phishing(email_data):
     email_content = email_data.get('email_contents', '')
@@ -884,8 +888,10 @@ def check_phishing(email_data):
     # split the data into label/target and features
     #aka y (THIS SHOULD BE OUR PHISHING/NOT PHISHING COLUMN)
     labels = np.array(features['CLASS_LABEL'])
+    #print("LABELS: ", labels)
     #aka x (This should be all of the features)
     features = features.drop('CLASS_LABEL', axis=1)
+    #print("FEATURES: ", features)
 
     #seperate the data into training and testing set
     train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.25, random_state=42)
@@ -893,15 +899,31 @@ def check_phishing(email_data):
     forest = RandomForestClassifier()
     forest.fit(train_features, train_labels)
 
+    # Train features,x
+    #print("Train Features: ", train_features)
+    # Train labels, y
+    #print("Train Labels: ", train_labels)
+    # Test features, x
+    #print("Test Features: ", test_features)
+    # Test labels, y
+    #print("Test Labels: ", test_labels)
+
     # Predict if the email is a phishing attempt using the random forest model
-    # this is the class label (49th feature)
-    phishing_prediction = forest.predict([email_features])[0]
+    # List of Phishing Predictions
+    phishing_prediction_list = []
+    # Phishing Prediction for each email
+    for i in range(len(email_features)):
+        single_email_with_its_features = email_features[i]
+        # this is the class label (49th feature)
+        phishing_prediction = forest.predict([single_email_with_its_features])[0]
+        print("Phishing Prediction for Email ", i+1, ": ", phishing_prediction)
+        phishing_prediction_list.append(phishing_prediction)
 
     # phishing prediction should output a lost of the features with it's pediction
     # of whether it's phishing or not
     # ex: [0 , 1, 0, 0, 0, 1, 0, 0, 0,..., 0]
     # Set a threshold for the prediction to classify it as phishing or not
-    average = stats.mean(email_features)
+    average = sum(phishing_prediction_list) / float(len(phishing_prediction_list))
     test = str(average)
     phishing_threshold = 0.5
     if average <= phishing_threshold:
@@ -911,9 +933,6 @@ def check_phishing(email_data):
         print("This email seems legitimate. Prediction: " + test)
         return "This email appears to be authentic and trustworthy. Prediction: " + test
         
-
-
-
 
 
 
