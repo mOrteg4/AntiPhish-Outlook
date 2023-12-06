@@ -440,8 +440,8 @@ def transform_email_to_features(preprocessed_content):
                             pass
                 if total_links > 0:
                     pct_external_links = external_links / total_links
-                    print(f"Percentage of external hyperlinks: {round(pct_external_links, 2)}")
-                    result = round(pct_external_links, 2)
+                    print(f"Percentage of external hyperlinks: ", external_links, " / ", total_links, " = ", pct_external_links))
+                    result = pct_external_links
                 else:
                     print("No hyperlinks found in HTML")
                     result = 0
@@ -464,8 +464,8 @@ def transform_email_to_features(preprocessed_content):
                     external_resources += 1
             total_resources = len(tags)
             if total_resources > 0:
-                percentage = external_resources / total_resources * 100
-                print("Pct of Ext Resouce in Url: ", external_resources, " / ", total_resources, " * 100 = ", percentage)
+                percentage = external_resources / total_resources
+                print("Pct of Ext Resouce in Url: ", external_resources, " / ", total_resources, " = ", percentage)
             else:
                 percentage = 0
             email_features.append(percentage)
