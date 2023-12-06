@@ -54,8 +54,10 @@ def transform_email_to_features(preprocessed_content):
             print("================================================================")
             print("                  STARTING TO FIND SUBCATEGORIES                ")
             print("================================================================")
+            #print current link we are on
+            print("Current link we are on: ", i+1)
             #print the number we are on
-            print("Number for i (current num we are on): ", i+1)
+            print("Current num for i: ", i)
             #print the link we are curently on
             print("Current link: ", has_link_group_type[i])
             # GET request to URL
@@ -442,7 +444,7 @@ def transform_email_to_features(preprocessed_content):
                 if total_links > 0:
                     pct_external_links = external_links / total_links
                     print(f"Percentage of external hyperlinks: ", external_links, " / ", total_links, " = ", pct_external_links)
-                    result = pct_external_links
+                    result = round(pct_external_links,9)
                 else:
                     print("No hyperlinks found in HTML")
                     result = 0
@@ -466,6 +468,7 @@ def transform_email_to_features(preprocessed_content):
             total_resources = len(tags)
             if total_resources > 0:
                 percentage = external_resources / total_resources
+                percentage = round(percentage,9)
                 print("Pct of Ext Resouce in Url: ", external_resources, " / ", total_resources, " = ", percentage)
             else:
                 percentage = 0
@@ -852,10 +855,9 @@ def transform_email_to_features(preprocessed_content):
                           0,0,0,0,0.0291970803,0,0,0,0,0,1,0,0,1,1,
                           1,1,0,1}
     # Combine the extracted features into a numpy array
-    
     np.array(email_features)
-    print("Features for Dataset:", email_features)
-    print("All of the Links Datasets: ", multiple_links)
+    #print("Features for Dataset:", email_features)
+    #print("All of the Links Datasets: ", multiple_links)
 
     #check if this runs through each link or just the last link
     return multiple_links
