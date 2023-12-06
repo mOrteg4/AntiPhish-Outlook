@@ -40,6 +40,7 @@
     -webkit-flex: 1 0 0;
     flex: 1 0 0;
     padding: 10px 20px;
+    color: #ffffff;
  }
  
  .ms-welcome__main > h2 {
@@ -114,7 +115,6 @@
 
 .dark-mode {
   background-color: #1c1c1e;
-  color: #ffffff;
 }
 
 .dark-mode .ms-welcome__header {
