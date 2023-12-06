@@ -846,7 +846,7 @@ def check_phishing(email_data):
     email_content = email_data.get('email_contents', '')
     if has_zero_links_and_attachments(email_content):
         print("This email has NO links and appears to be safe.")
-        return "This email has zero links and zero attachments. It appears to be safe."
+        return "This email has zero links. It appears to be safe."
     else:
         print("This email contains links. Checking for phishing.")
         #return "This email has links and/ or attachments."
