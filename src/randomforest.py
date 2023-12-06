@@ -580,8 +580,8 @@ def transform_email_to_features(preprocessed_content):
                         null_self_redirect_links += 1
             if total_links > 0:
                 pct_null_self_redirect_links = null_self_redirect_links / total_links
-                print(f"Percentage of hyperlinks containing empty value, self-redirect value, or abnormal value: {round(pct_null_self_redirect_links, 2)}")
-                result = round(pct_null_self_redirect_links, 2)
+                print(f"Percentage of hyperlinks containing empty value, self-redirect value, or abnormal value: {round(pct_null_self_redirect_links, 9)}")
+                result = round(pct_null_self_redirect_links, 9)
             else:
                 print("No hyperlinks found in HTML")
                 result = 0
@@ -750,7 +750,7 @@ def transform_email_to_features(preprocessed_content):
                         result = 1
                     else:
                         result = 0
-                    print(f"Percentage of external resource URLs: {round(pct_external_resource_urls, 2)}")
+                    print(f"Percentage of external resource URLs: {round(pct_external_resource_urls,9)}")
                 else:
                     print("No resource URLs found in HTML")
                     result = -1
