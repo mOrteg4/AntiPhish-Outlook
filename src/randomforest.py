@@ -418,6 +418,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctExtHyperlinks
+            print("FIND THE PERCENTAGE OF ExtHyperLinks")
             for html_string in has_link_group_type:
                 try:
                     temp = BeautifulSoup(html_string, 'html.parser')
@@ -472,6 +473,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ExtFavicon
+            print("EXTRACT EXTERNAL FAVICON")
             for link in temp.find_all('link', rel='icon'):
                 href = link.get('href')
                 if href:
@@ -491,6 +493,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract InsecureForms
+            print("CHECK FOR INSECURE FORM ACTION")
             for form in temp.find_all('form'):
                 action = form.get('action')
                 if action and not action.startswith("#"):
@@ -509,6 +512,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract RelativeFormAction
+            print("CHECK RELATIVE FORM ACTION")
             for form in temp.find_all('form'):
                 action = form.get('action')
                 if action and not action.startswith("#"):
@@ -527,6 +531,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ExtFormAction
+            print("CHECK EXTERNAL FORM ACTION")
             for form in temp.find_all('form'):
                 action = form.get('action')
                 if action and not action.startswith("#"):
@@ -546,6 +551,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract AbnormalFormAction
+            print("CHECK FOR ABNORMAL FORM ACTION")
             form_action = "about:blank"
             if form_action == "about:blank":
                 print("Form action is about:blank")
@@ -563,6 +569,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctNullSelfRedirectHyperlinks
+            print("FIND PERCENTAGE OF HYPERLINKS CONTAINING NULL")
             total_links = 0
             null_self_redirect_links = 0
             for link in temp.find_all('a'):
@@ -582,6 +589,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
             
             #Extract FrequentDomainNameMismatch
+            print("EXTRACT FREQUENT DOMAIN NAME MISMATCH")
             links = [link.get("href") for link in temp.find_all("a") if link.get("href")]
             url_domain = tldextract.extract(has_link_group_type[i]).domain
             domains = [tldextract.extract(link).domain for link in links]
@@ -601,6 +609,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract FakeLinkInStatusBar
+            print("EXTRACT FAKE LINK IN STATUS BAR")
             if "onMouseOver" in html_content:
                 result = 1 
                 print("Fake link in status bar found")
@@ -611,6 +620,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract RightClickDisabled
+            print("CHECK IF RIGHT CLICK DISABLED")
             right_click_pattern = re.compile(r'document\.oncontextmenu\s*=\s*function\s*\(\s*\)\s*{\s*return\s+false;\s*}')
             right_click_disabled = bool(right_click_pattern.search(html_content))
             if right_click_disabled is True:
@@ -623,6 +633,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PopUpWindow
+            print("CHECK IF THERE IS POP UP WINDOW")
             if "window.open" in html_content:
                 result = 1
                 print("Pop Up Window: Yes")
@@ -633,6 +644,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract SubmitInfoToEmail
+            print("SUBMIT INFO TO EMAIL")
             mailto_links = temp.find_all("a", href=lambda href: href and href.startswith("mailto:"))
             if mailto_links:
                 result = 1
@@ -644,6 +656,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract IframeOrFrame
+            print("CHECK IF IFRAME OR FRAME FOUND")
             iframes = temp.find_all('iframe')
             frames = temp.find_all('frame')
             if iframes or frames:
@@ -656,6 +669,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract MissingTitle
+            print("CHECK IF TITLE IS MISSING")
             title = temp.find('title')
             if title and not title.string:
                 result = 1
@@ -667,6 +681,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract ImagesOnlyInForm
+            print("EXTRACT IMAGE ONLY IN FORM")
             forms = temp.find_all('form')
             # results = []  # Create a list to store results for each form
             for form in forms:
@@ -681,6 +696,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract SubdomainLevelRT
+            print("CHECK IF SUBDOMAIN LEVEL FITS RULES AND THRESHOLDS")
             parsed_url = urlparse(has_link_group_type[i])
             subdomain_level = parsed_url.hostname.count('.')
             if subdomain_level == 1:
@@ -696,6 +712,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract UrlLengthRT
+            print("CHECK IF THE URL LENGTH FITS THE RULES AND THRESHOLDS")
             url_length = len(has_link_group_type[i])
             if url_length < 54:
                 print("URL Length Rules and Thresholds: Legitimate")
@@ -710,7 +727,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract PctExtResourceUrlsRT
-            print("EXTRACTING PctExtResourceUrlsRT")
+            print("CHECK IF PERCENTAGE OF EXTERNAL RESOURCES URLS FITS RULES AND THRESHOLD")
             try:
                 response = requests.get(has_link_group_type[i], timeout=5)
                 html = response.text
@@ -741,7 +758,7 @@ def transform_email_to_features(preprocessed_content):
             print("-------- Features for Dataset so Far --------\n", email_features)
 
             # Extract AbnormalExtFormActionR
-            print("EXTRACTING AbnormalExtFormActionR")
+            print("EXTRACT ABNORMAL EXTERNAL FORM ACTION RULES")
             pattern = re.compile(r'<form.*?\saction=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL)
             matches = pattern.findall(html_content)
             for match in matches:
@@ -759,6 +776,7 @@ def transform_email_to_features(preprocessed_content):
             
             
             # Extract ExtMetaScriptLinkRT
+            print("CHECK IF EXTERNAL META SCRIPT LINK FITS RULE AND THRESHOLD")
             soup = BeautifulSoup(html_content, 'html.parser')
             # Find all <meta>, <script>, and <link> tags with href or src attributes
             tags = soup.find_all(['meta', 'script', 'link'], href=True, src=True)
@@ -785,8 +803,8 @@ def transform_email_to_features(preprocessed_content):
             print("Percentage of external Meta/Script/Link tags: ", result)
             print("-------- Features for Dataset so Far --------\n", email_features)
 
-            #TODO: RECHECK
             # Extract PctExtNullSelfRedirectHyperlinksRT
+            print("CHECK IF PctExtNullSelfRedirectHyperlinks FITS RULES AND THRESHOLD")
             soup = BeautifulSoup(html_content, 'html.parser')
             # Find all <a> tags with href attributes
             tags = soup.find_all('a', href=True)
