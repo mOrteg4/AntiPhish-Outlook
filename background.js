@@ -2,12 +2,12 @@
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "checkUrl") {
-        fetch("http://localhost:5000/check_email", {
+        fetch("http://localhost:5000/check_url", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email_contents: request.url }),
+            body: JSON.stringify({ url: request.url }),
         })
         .then(response => response.text())
         .then(data => {
@@ -19,5 +19,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({data: "Error connecting to the backend."});
         });
         return true; // Indicates that the response is sent asynchronously
+    } else if (request.type === "openDashboard") {
+        const url = `dashboard.html?url=${encodeURIComponent(request.url)}`;
+        chrome.tabs.create({ url: url });
     }
 });

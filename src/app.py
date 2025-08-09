@@ -22,6 +22,20 @@ def check_email():
         return "This could be a phishing email. Please be cautious."
     return result
 
+@app.route('/check_url', methods=['POST'])
+def check_url():
+    data = request.json
+    if not data or 'url' not in data:
+        return "No URL provided.", 400
+
+    try:
+        # This will require a new function in randomforest.py
+        result = randomforest.check_phishing_url(data['url'])
+    except Exception as e:
+        print(f"Error checking URL: {e}")
+        return "Could not process the URL."
+    return result
+
 if __name__ == '__main__':
     app.run()
 
