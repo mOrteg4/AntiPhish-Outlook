@@ -26,45 +26,6 @@ async function getEmailContents() {
   });
 }
 
-// Function to send email contents to Flask server
-async function sendEmailContentsToFlask(emailContents) {
-  const flaskServerURL = "http://localhost:5000/receive_email";
-  const response = await fetch(flaskServerURL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email_contents: emailContents }),
-  });
-  return response.json();
-}
-
-// Function to handle the whole process
-async function processEmail() {
-  try {
-    const emailContents = await getEmailContents();
-    const response = await sendEmailContentsToFlask(emailContents);
-    console.log(response);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-async function checkForResponse() {
-  try {
-    document.getElementById("status-message").innerText = "Python file has not loaded yet. Please Wait.";
-    const response = await fetch('http://localhost:5000/');
-    const text = await response.text();
-    document.getElementById("status-message").innerText = text;
-  } catch (error) {
-    console.error("Error:", error);
-    document.getElementById("status-message").innerText = "Python file has not loaded yet. Please Wait.";
-    // Wait for 5 seconds before calling the function again
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    checkForResponse();
-  }
-}
-
 export async function run() {
   // Get a reference to the current message
   const item = Office.context.mailbox.item;
@@ -79,9 +40,23 @@ export async function run() {
 
     // Combine subject and body
     var emailContent = item.subject + " " + body;
-    processEmail()
+
     document.getElementById("status-message").innerText = "Checking...";
-    checkForResponse()
+
+    try {
+      const response = await fetch("http://localhost:5000/check_email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email_contents: emailContent }),
+      });
+      const responseText = await response.text();
+      document.getElementById("status-message").innerText = responseText;
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById("status-message").innerText = "Error checking email. Please try again.";
+    }
   });
 }
 
